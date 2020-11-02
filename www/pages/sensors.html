@@ -1,0 +1,38 @@
+<template>
+    <div class="page">
+            <div class="navbar">
+              <div class="navbar-inner sliding">
+                <div class="left">
+                  <a href="#" class="link back">
+                    <i class="icon icon-back"></i>
+                    <span class="ios-only">Back</span>
+                  </a>
+                </div>
+                <div class="title">Sensors</div>
+              </div>
+            </div>
+    <div class="page-content">
+                <div class="block">
+                    {{#each sensors}}
+                    
+                        <div class="card card-outline">
+                            <div class="card-header">{{this.sensorname}}
+
+                            </div>
+                                <div class="card-content card-content-padding">
+                                    <div>type: {{this.type}}</div>
+                                    <div>location: {{this.loc}}</div>
+                                    <div>log: {{this.log}}</div>                                   
+                                    {{#if this.hasOwnProperty('extra')}}
+                                        <div class="">Extra args: {{this.extra}}</div>
+                                    {{/if}}    
+                            </div>  
+                        </div>
+                        
+                    
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+  </template>

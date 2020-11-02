@@ -1,0 +1,66 @@
+html, body{
+    background-color: transparent !important;
+ } 
+
+ .backTrans {
+    background-color: transparent !important;
+ } 
+
+ .hide {
+     display: none !important;
+ }
+
+ .show {
+    display: block;
+}
+
+.hor-right-0-5 {
+    margin-right: 0.5em;
+}
+
+.ver-bottom-0-5 {
+    margin-bottom: 0.5em;
+}
+
+.ver-top-0-5 {
+    margin-top: 0.5em;
+}
+
+.ver-top-1 {
+    margin-top: 1em;
+}
+
+.line-break {
+    width: 100%;
+}
+
+.pull-right {
+    float: right !important;
+}
+
+.pull-left {
+    float: left !important;
+}
+
+.marginLR15 {
+    margin: 0 15px 0 15px;
+}
+
+.picturePreview {
+    position: fixed;
+}
+
+.font-2 {
+    font-size: xx-large;
+}
+
+.longTap {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    border-top: 1px rgba(128, 128, 128, 0.078) solid;
+}
+
+.item-text {
+    color: #575757 !important;
+}

@@ -1,0 +1,82 @@
+
+    <div class="page">
+        <div class="navbar">
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a href="#" class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="ios-only">Back</span>
+                    </a>
+                </div>
+                <div class="title">Charts</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="block-title">Design your chart</div>
+            <form class="list no-hairlines-md" id="chartConfig">
+                <ul>
+                    <li>
+                        <a href="#" class="item-link smart-select smart-select-init">
+                            <select name="charttype" required validate>
+                                <option value="line">line</option>
+                                <option value="bar">bar</option>
+                            </select>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title">Chart type(s)</div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li> 
+                        <a href="#" class="item-link smart-select smart-select-init">
+                            <select name="logs" id="selLogs" 
+                            onchange="PopulateValueLabels('select[name=\'columns\']', this)" required validate>
+
+                            </select>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title">Choose log</div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="item-link smart-select smart-select-init">
+                            <select name="columns" multiple required validate>
+
+                            </select>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title">Choose column(s)</div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">Start date/time (optional)</div>
+                            <div class="item-input-wrap">
+                                <input type="date" name="datestart" placeholder="Please choose...">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">End date/time (optional)</div>
+                            <div class="item-input-wrap">
+                                <input type="date" name="dateend" placeholder="Please choose...">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                
+            </form>
+            <div class="block">
+                <button id="genCharts" class="button button-fill" onclick="GenerateCharts()">Generate</button>
+            </div>
+            
+            <div id="myChart" class=""></div>
+            <!-- <canvas id="myChartCanvas" class=""></canvas> -->
+        </div>
+    </div>

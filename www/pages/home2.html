@@ -1,0 +1,35 @@
+<template>
+<div class="page" data-name="home">
+      
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="left">
+          <a href="#" class="link icon-only panel-open" data-panel=".panel-left">
+            <i class="fa fa-bars"></i>
+          </a>
+        </div>
+        <div class="title sliding">Pigrow remote</div>
+      </div>
+    </div>
+    
+    <div class="page-content">
+       
+            <div class="block-title">Statistics</div>
+            <div class="block">
+              <div id="readings" class="list">
+                {{#each sensors}}
+                    <h3>{{sensors.sensortype}}</h3>
+                    <ul>
+                        {{#if this != 'time' && this != 'sensortype'}}
+                            <li >{{@key}} : {{this}}</li>
+                        {{/if}}
+                    </ul>
+                {{/each}}
+              </div>
+            </div>
+            <div class="block">
+                <button class="button button-big button-fill" onclick="LoadReadings();">Refresh</button>
+            </div>
+          </div>
+    </div>
+</template>

@@ -1,0 +1,314 @@
+<template>
+    <div class="page">
+        <div class="navbar">
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a href="#" class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="ios-only">Back</span>
+                    </a>
+                </div>
+                <div class="title">Triggers</div>
+            </div>
+        </div>
+        
+        <div class="page-content">
+           
+            <div class="list links-list">
+                <ul>
+
+                    {{#each triggers}}
+                    <li>
+                        <!-- <a href="#" onclick="OpenTriggerPopup('{{this.conditionname}}')">{{this.conditionname}}</a> -->
+                        <a href="#" id="triggerOpen-{{this.conditionname}}" data-popup="#triggerPopup-{{this.conditionname}}" class="popup-open">{{this.conditionname}}</a>
+                    </li>
+
+
+                    {{/each}}
+                </ul>
+            </div>
+           
+                {{#each triggers}}
+
+            <div class="list">
+                <div id='triggerPopup-{{this.conditionname}}' class="popup">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-90"></div>
+                            <div class="col-10">
+                                <a href="#" class="button popup-close "><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+                        <div class="list list-{{this.conditionname}}">
+                            <ul>
+                                <li>
+                                    <div class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title">Condition Name:</div>
+                                            <div class="item-input-wrap hide">
+                                                <input type="text" id="condName-{{this.conditionname}}">
+                                            </div>
+                                            <div class="item-label">
+                                                {{this.conditionname}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="item-link smart-select smart-select-init hide">
+                                        <select name="logs" id="logs-{{this.conditionname}}" onchange="SetValueLabelOptions(this)">
+                                            <option value="{{this.log}}" selected>{{this.log}}</option>
+                                        </select>
+                                        <div class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title">Log</div>
+                                                <div class="item-after">{{this.log}}</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title">Log:</div>
+                                            <div class="item-label">
+                                                {{this.log}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="item-link smart-select smart-select-init hide">
+                                        <select name="valuelabel" id="valuelabel-{{this.conditionname}}">
+                                            <option value="{{this.valuelabel}}" selected>{{this.valuelabel}}</option>
+                                        </select>
+                                        <div class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title">Value label</div>
+                                                <div class="item-after">{{this.valuelabel}}</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title">Value label:</div>
+                                            <div class="item-label">
+                                                {{this.valuelabel}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="item-link smart-select smart-select-init hide">
+                                        <select name="type" id="type-{{this.conditionname}}">
+                                            <option value="{{this.type}}" selected>{{this.type}}</option>
+                                        </select>
+                                        <div class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title">Type</div>
+                                                <div class="item-after">{{this.type}}</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title">Type:</div>
+                                            <div class="item-label">
+                                                {{this.type}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title">Value:</div>
+                                            <div class="item-input-wrap hide">
+                                                <input type="text" id="value-{{this.conditionname}}">
+                                            </div>
+                                            <div class="item-label">
+                                                {{this.value}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="item-link smart-select smart-select-init hide">
+                                        <select name="set" id="set-{{this.conditionname}}">
+                                            <option value="{{this.set}}" selected>{{this.set}}</option>
+                                        </select>
+                                        <div class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title">Set</div>
+                                                <div class="item-after">{{this.set}}</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title">Set:</div>
+                                            <div class="item-label">
+                                                {{this.set}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title">Lock:</div>
+                                            <div class="item-input-wrap hide">
+                                                <input type="text" id="lock-{{this.conditionname}}">
+                                            </div>
+                                            <div class="item-label">
+                                                {{this.lock}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title">Command:</div>
+                                            <div class="item-input-wrap hide">
+                                                <input type="text" id="cmd-{{this.conditionname}}">
+                                            </div>
+                                            <div class="item-label">
+                                                {{escape this.cmd}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="block">
+                                <div class="row">
+                                    <button class="button"
+                                        onclick="EditTriggers('{{this.conditionname}}',this)">Edit</button>
+                                    <button class="button col editMode  hide" data-popup="#triggerPopup-{{this.conditionname}}"
+                                        onclick="OpenTriggerPopup('{{this.conditionname}}',this)">Cancel</button>
+                                        <!-- <button class="button col editMode popup-close hide" data-popup="#triggerPopup-{{this.conditionname}}"
+                                        >Cancel</button> -->
+                                    <button class="button col editMode hide"
+                                        onclick="SaveTriggers('{{this.conditionname}}', false)">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                {{/each}}
+                <div class="pull-right ver-top-1">
+                    <a href="#" title="Add new trigger" onclick="PopulateCreateTriggerSelect();" data-popup=".trigger-createNew" class="popup-open button"><i class="fa fa-plus-circle"></i> New</a>
+                </div>
+
+        </div>
+        <div class="popup trigger-createNew">
+            <form id="trigger-createNew">
+                <div class="">
+                    <div class="row">
+                        <div class="col-90"></div>
+                        <div class="col-10">
+                            <a href="#" class="button popup-close "><i class="fa fa-times"></i></a>
+                        </div>
+                    </div>
+                    <div class="list">
+                        <ul>
+                            <li>
+                                <div class="item-content item-input">
+                                    <div class="item-inner">
+                                        <div class="item-title">Condition Name:</div>
+                                        <div class="item-input-wrap">
+                                            <input type="text" id="condName-createNew" placeholder="Unique trigger name">
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="item-link smart-select smart-select-init">
+                                    <select name="logs-createNew" id="logs-createNew" onchange="SetValueLabelOptions(this,true)">
+        
+                                    </select>
+                                    <div class="item-content">
+                                        <div class="item-inner">
+                                            <div class="item-title">Log</div>
+                                            <div class="item-after"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="item-link smart-select smart-select-init">
+                                    <select name="valuelabel-createNew" id="valuelabel-createNew">
+        
+                                    </select>
+                                    <div class="item-content">
+                                        <div class="item-inner">
+                                            <div class="item-title">Value label</div>
+                                            <div class="item-after"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="item-link smart-select smart-select-init">
+                                    <select name="type-createNew" id="type-createNew">
+        
+                                    </select>
+                                    <div class="item-content">
+                                        <div class="item-inner">
+                                            <div class="item-title">Type</div>
+                                            <div class="item-after"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <div class="item-content item-input">
+                                    <div class="item-inner">
+                                        <div class="item-title">Value:</div>
+                                        <div class="item-input-wrap">
+                                            <input type="text" id="value-createNew" placeholder="Value to trigger against">
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="item-link smart-select smart-select-init">
+                                    <select name="set-createNew" id="set-createNew">
+        
+                                    </select>
+                                    <div class="item-content">
+                                        <div class="item-inner">
+                                            <div class="item-title">Set</div>
+                                            <div class="item-after"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <div class="item-content item-input">
+                                    <div class="item-inner">
+                                        <div class="item-title">Lock:</div>
+                                        <div class="item-input-wrap">
+                                            <input type="text" id="lock-createNew" placeholder="Lock in mins">
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="item-content item-input">
+                                    <div class="item-inner">
+                                        <div class="item-title">Command:</div>
+                                        <div class="item-input-wrap">
+                                            <input type="text" id="cmd-createNew" placeholder="Command to be run including paths">
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+            <button class="button col" onclick="SaveTriggers('createNew', true)">Save</button>
+        </div>
+    </div>
+
+</template>

@@ -1,0 +1,55 @@
+<template>
+    <div class="page">
+            <div class="navbar">
+              <div class="navbar-inner sliding">
+                <div class="left">
+                  <a href="#" class="link back">
+                    <i class="icon icon-back"></i>
+                    <span class="ios-only">Back</span>
+                  </a>
+                </div>
+                <div class="title">Sensors</div>
+              </div>
+            </div>
+    <div class="page-content">
+            <div class="list">
+                <ul>
+                    
+                    {{#each sensors.items}}
+                    <li>
+                        <div class="hide bookId">{{this.id}}</div>
+                        <div class="item-content">
+                            <div class="item-media">
+                                <img height="80" src="{{this.imagelink}}">
+                            </div>
+                            <div class="item-inner">
+                                <div class="item-title-row">
+                                    
+                                    <div class="item-title">{{this.bookname}}</div>
+                                </div>
+                                <div class="item-title-row">
+                                    <div class="item-text">{{this.bookauthor}}</div>
+                                </div>
+                                <div class="item-title-row ">
+                                    <div class="item-text recipeCount">{{this.countItems}} recipes</div>
+                                </div>
+
+                            </div>
+                            
+                        </div>
+                        <div class="marginLR15">
+                                {{#each this.bookdetails}}
+                                <div class="row ver-bottom-0-5 longTap">
+                                        <div class="item-text recipeId hide">{{this.recipeid}}</div>
+                                        <div class="item-text bookRecipe col-80 ver-top-0-5">{{this.line}}</div>
+                                        <div class="item-text recipePageNum col-20 ver-top-0-5">{{this.pagenumber}}</div>
+                                </div>
+                                {{/each}}
+                            </div>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</template>

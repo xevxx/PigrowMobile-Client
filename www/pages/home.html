@@ -1,0 +1,61 @@
+<template es>
+<div class="page" data-name="home">
+      
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="left">
+          <a href="#" class="link icon-only panel-open" data-panel=".panel-left">
+            <i class="fa fa-bars"></i>
+          </a>
+        </div>
+        <div class="title sliding">Pigrow remote</div>
+        <div class="right">
+          <button class="button" onclick="LoadReadings();"><i class="arrow_2_circlepath_circle"></i>Refresh</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="page-content">
+            
+            <!-- <h3 class="block-title">Statistics</h3> -->
+            <div class="block">
+             
+                ${this.stats.map((stat) => `
+                  <div class="card card-outline">
+                <div class="card-header">${stat.sensortype}</div>
+                <span style='display:none'>
+                  ${delete stat['time']}
+                  ${delete stat['sensortype']}
+              </span>
+                <div class="card-content card-content-padding">
+                  <ul>
+                    ${Object.keys(stat).map(key => (
+                      `<li >${key} : ${stat[key]}</li>`
+                  )).join('')}
+                  </ul>
+                </div>
+              </div>
+                  `).join('')}
+             
+
+
+              <!-- <div id="readings" class="list">
+                ${this.stats.map((stat) => `
+                    <h3>${stat.sensortype}</h3>
+                    <ul>
+                        <span style='display:none'>
+                            ${delete stat['time']}
+                            ${delete stat['sensortype']}
+                        </span>
+                       
+                        ${Object.keys(stat).map(key => (
+                            `<li >${key} : ${stat[key]}</li>`
+                        )).join('')}
+                    </ul>
+                `).join('')}
+              </div> -->
+            </div>
+            
+          </div>
+    </div>
+</template>

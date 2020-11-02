@@ -1,0 +1,65 @@
+<template>
+    <div class="page">
+            <div class="navbar">
+              <div class="navbar-inner sliding">
+                <div class="left">
+                  <a href="#" class="link back">
+                    <i class="icon icon-back"></i>
+                    <span class="ios-only">Back</span>
+                  </a>
+                </div>
+                <div class="title">Config details</div>
+              </div>
+            </div>
+    <div class="page-content">
+        <div class="block">
+            <h3>GPIO</h3>
+            {{#each config.gpio}}
+            
+                <div class="card card-outline">
+                    <div class="card-header">{{this.name}}
+
+                    </div>
+                        <div class="card-content card-content-padding gpio" gpioname="{{this.name}}">
+                            <div>Pin: {{this.pin}}</div>                               
+                            {{#if this.hasOwnProperty('direction')}}
+                                <div class="">Direction: {{this.direction}}</div>
+                            {{/if}}  
+                            {{#if this.hasOwnProperty('state')}}
+                                <span>State:</span>
+                                <label class="toggle toggle-init color-blue">
+                                <input type="checkbox" onchange="ToggleGpio(this)">
+                                <span class="toggle-icon"></span>
+                                </label>
+                            {{/if}}    
+                    </div>  
+                </div>
+                
+            
+            {{/each}}
+        </div>
+                <div class="block">
+                    <h3>Sensors</h3>
+                    {{#each config.sensors}}
+                    
+                        <div class="card card-outline">
+                            <div class="card-header">{{this.sensorname}}
+
+                            </div>
+                                <div class="card-content card-content-padding">
+                                    <div>type: {{this.type}}</div>
+                                    <div>location: {{this.loc}}</div>
+                                    <div>log: {{this.log}}</div>                                   
+                                    {{#if this.hasOwnProperty('extra')}}
+                                        <div class="">Extra args: {{this.extra}}</div>
+                                    {{/if}}    
+                            </div>  
+                        </div>
+                        
+                    
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

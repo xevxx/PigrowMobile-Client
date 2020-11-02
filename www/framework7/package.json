@@ -1,0 +1,111 @@
+{
+  "_args": [
+    [
+      "framework7",
+      "/home/david/Dev/PigrowMobile-Client"
+    ]
+  ],
+  "_from": "framework7@latest",
+  "_hasShrinkwrap": false,
+  "_id": "framework7@5.7.13",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/framework7",
+  "_nodeVersion": "13.10.1",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/framework7_5.7.13_1602274514958_0.022709359870909607"
+  },
+  "_npmUser": {
+    "email": "nolimits4web@gmail.com",
+    "name": "nolimits4web"
+  },
+  "_npmVersion": "6.13.7",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "framework7",
+    "raw": "framework7",
+    "rawSpec": "",
+    "scope": null,
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/framework7/-/framework7-5.7.13.tgz",
+  "_shasum": "666da46c783ec10774e4471af5053d34a07cbe9a",
+  "_shrinkwrap": null,
+  "_spec": "framework7",
+  "_where": "/home/david/Dev/PigrowMobile-Client",
+  "author": {
+    "name": "Vladimir Kharlampidi"
+  },
+  "bugs": {
+    "url": "https://github.com/framework7io/framework7/issues"
+  },
+  "dependencies": {
+    "dom7": "^2.1.5",
+    "path-to-regexp": "^6.1.0",
+    "ssr-window": "^2.0.0",
+    "template7": "^1.4.2"
+  },
+  "description": "Full featured mobile HTML framework for building iOS & Android apps",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "fileCount": 974,
+    "integrity": "sha512-4KvS8nZemSefqNviNs/fJGlLzCJnNRvxUTGyT8DoZxJAOf8qWs/h4QBUVES//qpHSBNZOXhlh0VGdpj0dgRUKw==",
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.13\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJfgMTTCRA9TVsSAnZWagAAuf4QAJtcq8oAU0recZcMN/nL\n359a3w+l4Gr+OHAoQOx4QAt83Zq1DFWZ6YDGAocFFT3R9UYdFuOdugvD1tps\n2O/r7+6Lw4krQ6ur5eqlHZzRDHYTeCUuoBOjtC6EeJzvtd1mW5mECjf5wj9d\nVsPIXHJa7qbgrJ38VD7YC5YGxR6LHFtsbDZMHSsPuNfuo7jxISGBDEnLXiDl\ng2v/Xi3tCY86ugm4aBnBi9VkVbXFJnBqAOrICsmQv7Lvkv8RFA5ypNggB4C7\nIVnVonhGfcwoF16khVM09R8pxB/FQkqJqWqrY5f7kzDT+FPK/Zi2sOUv2mfC\nCnickyBUxb/g7LPspi0Ho9FuDmZwJ4eeFP/MeoLz7s1gCT+pPK/bo74PFV9Q\ngJ5DADpN5U5ub9x7+kBa5hPM2SFYRbaPWox57FuFXZzUnwgdAZblptl9cjkJ\nm+YVWLgJE2ILA0SIsknGV0cEVsQp84bqb1PA2flnhRtJTerHNH+hPYbcaHNz\nnGUGcFLir0Ax4InMlCH2Z8l8Is5I2sMGiO+y8aOO2BMXQo00CyQL31czun4v\nGp9Ux9c+6OLrhDifoRiTmmjdLwn3nRvuB2P05pnJEI1RGDieVL8B+r41OB+A\ne4SWdwcw/B0Qh1Y/SHvsk4k2nkHMNrHjP2ksd4yW9M/t9RVYp/TUlNx1XItg\nvDNr\r\n=nlQI\r\n-----END PGP SIGNATURE-----\r\n",
+    "shasum": "666da46c783ec10774e4471af5053d34a07cbe9a",
+    "tarball": "https://registry.npmjs.org/framework7/-/framework7-5.7.13.tgz",
+    "unpackedSize": 14866939
+  },
+  "funding": {
+    "type": "patreon",
+    "url": "https://www.patreon.com/vladimirkharlampidi"
+  },
+  "homepage": "https://framework7.io/",
+  "jsnext:main": "framework7.esm.js",
+  "keywords": [
+    "android",
+    "app",
+    "apple",
+    "appstore",
+    "cordova",
+    "f7",
+    "framework",
+    "framework7",
+    "google",
+    "googleplay",
+    "ios",
+    "ipad",
+    "iphone",
+    "material",
+    "mobile",
+    "native",
+    "phonegap",
+    "touch"
+  ],
+  "license": "MIT",
+  "main": "js/framework7.js",
+  "maintainers": [
+    {
+      "name": "nolimits4web",
+      "email": "nolimits4web@gmail.com"
+    }
+  ],
+  "module": "framework7.esm.js",
+  "name": "framework7",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/framework7io/framework7.git"
+  },
+  "scripts": {
+    "postinstall": "echo \"\u001b[35m\u001b[1mLove Framework7? Support project by donating or pledging on patreon:\u001b[22m\u001b[39m\n > \u001b[32mhttps://patreon.com/vladimirkharlampidi\u001b[0m\n\""
+  },
+  "typings": "js/framework7.d.ts",
+  "version": "5.7.13"
+}
