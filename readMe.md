@@ -17,7 +17,8 @@ project (hopefully will be part of Pigrow deploy)
 On init screen enter your Pi ip address and server port (defaults to
 5000 for Flask built in server.
 
-<img alttext="" src="/../../blob/master/ReadME/enterdetails.jpg?raw=true" width="200"/>*Config screen*
+<img alttext="" src="/../../blob/master/ReadME/enterdetails.jpg?raw=true" width="200"/>
+*Config screen*
 
 This will take you to the home screen where readings will be shown from
 pre-configured sensors in Pigrow main app:
@@ -25,18 +26,18 @@ pre-configured sensors in Pigrow main app:
 Refresh will update the readings and the menu button
 
 <img alttext="" src="/../../blob/master/ReadME/homescreen.jpg?raw=true" width="200"/>
-Home screen
+*Home screen*
 
 Menu button opens up Nav menu:
 
 <img alttext="" src="/../../blob/master/ReadME/sidemenu.jpg?raw=true" width="200"/>
-Nav menu
+*Nav menu*
 
 Charts allows you to create interactive charts with a few simple options
 (uses dygraph js library)
 
 <img alttext="" src="/../../blob/master/ReadME/chart%20options.jpg?raw=true" width="200"/>
-Chart config
+*Chart config*
 
 Line or bar charts are available
 
@@ -50,7 +51,7 @@ Optional start and end date choosers
 Hit generate to create the chart
 
 <img alttext="" src="/../../blob/master/ReadME/chartdisplay.jpg?raw=true" width="200"/>
-Chart display
+*Chart display*
 
 The chart is interactive, can be pinch and zoomed to look at particular
 section more closely
@@ -62,22 +63,22 @@ Double tap to reset graph for full view
 Config shows GPIO configuration and allows toggling of relay switches
 
 <img alttext="" src="/../../blob/master/ReadME/gpioconfig.jpg?raw=true" width="200"/>
-GPIO config with toggles
+*GPIO config with toggles*
 
 Triggers allows the user to view current triggers in the Pigrow system
 
 <img alttext="" src="/../../blob/master/ReadME/triggerlist.jpg?raw=true" width="200"/>
-Trigger list
+*Trigger list*
 
 <img alttext="" src="/../../blob/master/ReadME/triggerview.jpg?raw=true" width="200"/>
-Trigger details
+*Trigger details*
 
 Triggers can be edited or new ones created
 
 <img alttext="" src="/../../blob/master/ReadME/triggeredit.jpg?raw=true" width="200"/>
-Edit Trigger
+*Edit Trigger*
 
 Sensors information can be viewed (read only)
 
 <img alttext="" src="/../../blob/master/ReadME/sensorview.jpg?raw=true" width="200"/>
-View sensor details
+*View sensor details*
