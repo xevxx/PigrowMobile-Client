@@ -16,7 +16,7 @@ project (hopefully will be part of Pigrow deploy)
 On init screen enter your Pi ip address and server port (defaults to
 5000 for Flask built in server.
 
-![Config screen](/../blob/master/ReadME/chart%20options.jpg?raw=true){width="2.8734547244094486in"
+![Config screen](/blob/master/ReadME/chart%20options.jpg?raw=true){width="2.8734547244094486in"
 height="6.229166666666667in"}
 
 **Config screen**
