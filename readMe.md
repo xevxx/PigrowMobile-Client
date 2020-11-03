@@ -17,8 +17,7 @@ project (hopefully will be part of Pigrow deploy)
 On init screen enter your Pi ip address and server port (defaults to
 5000 for Flask built in server.
 
-<img alttext="" src="/../../blob/master/ReadME/enterdetails.jpg?raw=true" width="200"/>
-Config screen
+<img alttext="" src="/../../blob/master/ReadME/enterdetails.jpg?raw=true" width="200"/>*Config screen*
 
 This will take you to the home screen where readings will be shown from
 pre-configured sensors in Pigrow main app:
