@@ -16,7 +16,7 @@ project (hopefully will be part of Pigrow deploy)
 On init screen enter your Pi ip address and server port (defaults to
 5000 for Flask built in server.
 
-<img src="/../../blob/master/ReadME/chart%20options.jpg?raw=true" width="100"/>
+<img alttext="" src="/../../blob/master/ReadME/enter%20details.jpg?raw=true" width="200"/>
 **Config screen**
 
 This will take you to the home screen where readings will be shown from
@@ -24,23 +24,18 @@ pre-configured sensors in Pigrow main app:
 
 Refresh will update the readings and the menu button
 
-![](media/image2.jpeg){width="2.841346237970254in" height="6.15625in"}
-
+<img alttext="" src="/../../blob/master/ReadME/homescreen.jpg?raw=true" width="200"/>
 **Home screen**
 
 Menu button opens up Nav menu:
 
-![](media/image3.jpeg){width="2.8220614610673667in"
-height="6.1144674103237096in"}
-
+<img alttext="" src="/../../blob/master/ReadME/sidemenu.jpg?raw=true" width="200"/>
 **Nav menu**
 
 Charts allows you to create interactive charts with a few simple options
 (uses dygraph js library)
 
-![](media/image4.jpeg){width="2.774038713910761in"
-height="6.010416666666667in"}
-
+<img alttext="" src="/../../blob/master/ReadME/chart%20options.jpg?raw=true" width="200"/>
 **Chart config**
 
 Line or bar charts are available
@@ -54,8 +49,7 @@ Optional start and end date choosers
 
 Hit generate to create the chart
 
-![](media/image5.jpeg){width="2.7980763342082238in" height="6.0625in"}
-
+<img alttext="" src="/../../blob/master/ReadME/chartdisplay.jpg?raw=true" width="200"/>
 **Chart display**
 
 The chart is interactive, can be pinch and zoomed to look at particular
@@ -67,30 +61,23 @@ Double tap to reset graph for full view
 
 Config shows GPIO configuration and allows toggling of relay switches
 
-![](media/image6.jpeg){width="2.8317311898512685in"
-height="6.135416666666667in"}
-
+<img alttext="" src="/../../blob/master/ReadME/gpioconfig.jpg?raw=true" width="200"/>
 **GPIO config with toggles**
 
 Triggers allows the user to view current triggers in the Pigrow system
 
-![](media/image7.jpeg){width="2.7644225721784776in"
-height="5.989583333333333in"}
-
+<img alttext="" src="/../../blob/master/ReadME/triggerlist.jpg?raw=true" width="200"/>
 **Trigger list**
 
-![](media/image8.jpeg){width="2.740384951881015in" height="5.9375in"}
-
+<img alttext="" src="/../../blob/master/ReadME/triggerview.jpg?raw=true" width="200"/>
 **Trigger details**
 
 Triggers can be edited or new ones created
 
-![](media/image9.jpeg){width="2.697115048118985in" height="5.84375in"}
-
+<img alttext="" src="/../../blob/master/ReadME/triggeredit.jpg?raw=true" width="200"/>
 **Edit Trigger**
 
 Sensors information can be viewed (read only)
 
-![](media/image10.jpeg){width="2.884615048118985in" height="6.25in"}
-
+<img alttext="" src="/../../blob/master/ReadME/sensorview.jpg?raw=true" width="200"/>
 **View sensor details**
