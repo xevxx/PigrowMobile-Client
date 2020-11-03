@@ -37,7 +37,7 @@ Charts allows you to create interactive charts with a few simple options
 (uses dygraph js library)
 
 <img alt="" src="/../../blob/master/ReadME/chart%20options.jpg?raw=true" width="200">
-*Chart config*
+<em>Chart config</em>
 
 Line or bar charts are available
 
