@@ -1,0 +1,40 @@
+<template>
+    <div class="page" data-name="home">
+      
+        <div class="navbar">
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a href="#" class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="ios-only">Back</span>
+                    </a>
+                </div>
+                <div class="title">Info modules</div>
+            </div>
+        </div>
+        
+        <div class="page-content">
+            <div class="block">
+                <div class="list">
+                    <!-- <ul> -->
+                <div class="item-content item-input">
+                    <div class="item-inner">
+                      <!-- <div class="item-title item-label">Info modules</div> -->
+                      <div class="item-input-wrap input-dropdown-wrap">
+                        <select name="infoModules" onchange="GetInfo(this)">
+                            <option value="-1">Choose info module</option>
+                            {{#each listings}}
+                                <option value="{{this.id}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>        
+                      </div>
+                    </div>
+                  </div>
+                <!-- </ul> -->
+                </div>
+            </div>
+            <div class="block">
+                <div class="infoModulePlaceholder list"></div>
+            </div>
+        </div>
+</template>
