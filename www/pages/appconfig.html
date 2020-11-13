@@ -1,40 +1,95 @@
 <template>
-<div class="page">
-    <div class="navbar">
-        <div class="navbar-inner sliding">
-            <div class="left">
-                <a href="#" class="link back">
-                    <i class="icon icon-back"></i>
-                    <span class="ios-only">Back</span>
-                </a>
+    <div class="page">
+        <div class="navbar">
+            <div class="navbar-inner sliding">
+                <div class="left">
+                    <a href="#" class="link back">
+                        <i class="icon icon-back"></i>
+                        <span class="ios-only">Back</span>
+                    </a>
+                </div>
+                <div class="title">App Config</div>
             </div>
-            <div class="title">App Config</div>
+        </div>
+        <div class="page-content">
+            <div class="block-title">Connection configuration</div>
+            <div class="{{#if appConfig.pigrows[0].pigrowConfig.piname}}block list{{else}}block list hide{{/if}}">
+                
+                {{#each appConfig.pigrows}}
+                    
+                    <div class="item-content item-input">
+                        <div class="item-inner">
+                            <!-- <div class="item-title item-label">Pigrow name</div> -->
+                            <div class="item-input-wrap item-media">
+                                <label>{{this.pigrowConfig.piname}}</label>
+                                <button class="button" onclick="LoadSettingsForm('{{this.pigrowConfig.piname}}')">Edit</button>
+                                <button class="button" onclick="MakeCurrent('{{this.pigrowConfig.piname}}')">Choose</button>
+                                <button class="button" onclick="DeletePigrow('{{this.pigrowConfig.piname}}')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                {{/each}}
+                <button class="button" onclick="AddNewPigrow();">Add new Pigrow</button>
+            </div>
+            <div class="{{#if appConfig.pigrows[0].pigrowConfig.piname}}ipForm hide{{else}}ipForm{{/if}}">
+                <form class="list no-hairlines-md" id="frmAppConfig">
+                    <ul>
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">IP address/ domain</div>
+                            <div class="item-input-wrap">
+                                <input type="text" name="ip" placeholder="Enter Pigrow IP address">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">Port (defaults to 5000)</div>
+                            <div class="item-input-wrap">
+                                <input type="number" name="port" placeholder="Set port">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">Default</div>
+                            <div class="item-input-wrap">
+                                    <input type="checkbox" name="default" onchange="AreYouSure('pigrowName')">
+                            </div>
+                        </div>
+                    </li>
+                    </ul>
+
+                </form>
+                <div class="block">
+                    <div class="row">
+                        <div class="col-50">
+                            {{#if appConfig.pigrows[0].pigrowConfig.piname}}
+                            <button id="cancelAppConfig" class="button " onclick="CancelConfig('connection')">Cancel</button>
+                            {{/if}}
+                        </div>
+                        <div class="col-50">
+                            <button id="saveAppConfig" class="button " onclick="SaveConfig()">Save Connection info</button>
+                        </div>
+                </div>
+                </div>
+            </div>
+            <div class="homeConfigFrm">
+                
+            </div>
+            <div class="block homeConfigFrm-btns hide">
+                <div class="row">
+                    <div class="col-50">
+                        {{#if appConfig.pigrows[0].pigrowConfig.piname}}
+                        <button id="cancelAppConfig" class="button " onclick="CancelConfig('homepage')">Cancel</button>
+                        {{/if}}
+                    </div>
+                    <div class="col-50">
+                        <button id="saveHomePageConfig" class="button " onclick="SaveHomePageConfig()">Save home page options</button>
+                    </div>
+            </div>
+
         </div>
     </div>
-    <div class="page-content">
-        <div class="block-title">Config Settings</div>
-<form class="list no-hairlines-md" id="appConfig">
-    <li class="item-content item-input">
-        <div class="item-inner">
-            <div class="item-title item-label">Start date/time (optional)</div>
-            <div class="item-input-wrap">
-                <input type="text" name="ip" placeholder="Enter Pigrow IP address">
-            </div>
-        </div>
-    </li>
-    <li class="item-content item-input">
-        <div class="item-inner">
-            <div class="item-title item-label">Port (defaults to 5000)</div>
-            <div class="item-input-wrap">
-                <input type="text" name="port" placeholder="Set port">
-            </div>
-        </div>
-    </li>
-</ul>
-
-</form>
-<div class="block">
-    <button id="saveAppConfig" class="button button-fill" onclick="SaveConfig()">Save</button>
-</div>
-</div>
 </template>

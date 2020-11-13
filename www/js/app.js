@@ -5,13 +5,78 @@ var testMode = false;
 var apiIP = '';
 var apiPort = '';
 var apiUrl = 'http://' + apiIP + ':' + apiPort;
+var apiPiName = '';
+
+Template7.registerHelper('split', function (stringFile, options) {
+  if (typeof stringFile === 'function') stringFile = stringFile.call(this);
+  if (typeof options.hash.delimiter == 'undefined') {
+    options.hash['delimiter'] = '_';
+  }
+  if (options.hash.index != 'undefined') {
+    return stringFile.split(options.hash.delimiter)[options.hash.index];
+  } else {
+    return stringFile.split(options.hash.delimiter);
+  }
+});
+
+Template7.registerHelper('display', function (tempKey, options) {
+  if (typeof tempKey === 'function') tempKey = tempKey.call(this);
+  let keys = tempKey.split('_');
+  let propertyName = keys[1];
+  let mother = {};
+  for (var i = 0; i < options.parents.length; i++) {
+    if (options.parents[i].hasOwnProperty(propertyName))
+      mother = options.parents[i];
+  }
+  let retStr = '';
+  if (mother[tempKey] == true) {
+    retStr += '<li>' + propertyName + ' : ' + mother[propertyName] + '</li>'
+  }
+
+  return retStr;
+});
+
+Template7.registerHelper('genChart', function (chartOptions, options) {
+  let data = {};
+  Object.keys(chartOptions).forEach(function (key) {
+    if (key.indexOf('show_') < 0 && key != 'show_Sensor' && key != 'show_Chart' && key != 'sensortype' && key != 'time') {
+      if (chartOptions['show_' + key] == true)
+        data[key] = chartOptions[key];
+    }
+  });
+  let divName = 'divChart-' + chartOptions.sensortype;
+  let chartSettings = {};
+  chartSettings['formData'] = {};
+  let c = chartSettings['formData'];
+  c['columns'] = [];
+  c['charttype'] = 'line';
+  c['logs'] = chartOptions.sensortype;
+  let dt = new Date();
+  let yesterday = (d => new Date(d.setDate(d.getDate()-1)) )(new Date);
+  c['datestart'] = yesterday.toISOString();
+
+  c['dateend'] = dt.toISOString();
+  c['selector'] = divName;
+  for (let d in data) {
+    c['columns'].push(d);
+  }
+  let json = Base64.encode(JSON.stringify(chartSettings));
+  //let div = '<div id="' + divName + '"><img onLoad="GenerateCharts(\'' + json + '\',this);" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" >';
+  let div = '<div id="' + divName + '">';
+  //let div = '<div id="' + divName + '"><img onerror="GenerateCharts(\'' + json + '\',this);" src="" >';
+  div += '</div>'
+  setTimeout(function () {
+    GenerateCharts('\'' + json + '\'', this);
+  }, 0)
+  return div;
+});
 
 // Framework7 App main instance
-var app  = new Framework7({
-  root: '#app', 
+var app = new Framework7({
+  root: '#app',
   id: 'io.framework7.pigrow-mobile', // App bundle ID
-  name: 'pigrow-mobile', 
-  theme: 'auto', 
+  name: 'pigrow-mobile',
+  theme: 'auto',
   routes: routes,
   dialog: {
     title: 'Pigrow Mobile'
@@ -22,20 +87,22 @@ var app  = new Framework7({
       config: [],
       gpio: [],
       readings: [],
-      chartData: []
+      chartData: [],
+      infoModules: [],
+      pigrowConfig: []
     }
   },
   touch: {
     fastClicks: true,
-    tapHold: true 
+    tapHold: true
   },
   panel: {
     swipe: true,
     visibleBreakpoint: 1024,
   },
   on: {
-    pageInit: function() {
-      
+    pageInit: function () {
+
     }
   },
   smartSelect: {
@@ -53,14 +120,23 @@ var mainView = app.views.create('.view-main', {
 
 $$(document).on('deviceready', function deviceIsReady() {
   console.log('Device is ready!');
-  
+
 });
 $$(document).on('submit', 'readingsFrm', readingsRefresh);
 function readingsRefresh(e) {
   if (!checkConnection())
     return;
-    mainView.router.refreshPage();
+  mainView.router.refreshPage();
 }
+
+window.addEventListener("orientationchange", function () {
+  ResizeGraphContainer();
+});
+
+
+window.addEventListener("resize", function () {
+  ResizeGraphContainer();
+});
 
 /**
  * Toggle gpio setting
@@ -71,7 +147,7 @@ function ToggleGpio($ele) {
   onoff = 'OFF';
   if ($ele.checked)
     onoff = 'ON';
-  var gpName =  ele.parent().parent().attr('gpioname');
+  var gpName = ele.parent().parent().attr('gpioname');
   var gpio = app.data.config.gpio.find(x => x.name == gpName);
   let gpioSend = {};
   gpioSend['relayName'] = gpio.name;
@@ -79,7 +155,7 @@ function ToggleGpio($ele) {
   gpioSend['state'] = gpio.state;
   gpioSend['pin'] = gpio.pin;
 
-  
+
   let params = {
     'url': apiUrl + '/api/v1/config/setgpio/',
     'method': 'POST',
@@ -87,17 +163,23 @@ function ToggleGpio($ele) {
     'data': JSON.stringify(gpioSend),
     'processData': false
   }
-  app.request.promise(params).then(function(resp) { 
-     if (resp) {
+  app.request.promise(params).then(function (resp) {
+    if (resp) {
+      let successful = 'Successful';
+      let icon = '<i class="fa fa-star"></i>';
+      if (resp.data.toLowerCase().indexOf('false') > -1) {
+        successful = 'failure';
+        icon = '<i class="fa fa-ban"></i>'
+      }
       var toastIcon = app.toast.create({
-        icon: app.theme === 'ios' ? '<i class="f7-icons">star</i>' : '<i class="material-icons">star</i>',
-        text: 'Successful',
+        icon: icon,
+        text: successful,
         position: 'center',
         closeTimeout: 2000,
       });
       toastIcon.open();
 
-     }
+    }
   });
 }
 
@@ -109,7 +191,7 @@ function PopulateCreateTriggerSelect() {
   var sen = app.data.sensors;
   let selOption;
   selLogs.empty();
-  for (let ix=0;ix <sen.length;ix++) {
+  for (let ix = 0; ix < sen.length; ix++) {
     let s = sen[ix];
     let logNameSplit = s.log.split('\\').pop().split('/').pop();
     var option = document.createElement("option");
@@ -127,8 +209,8 @@ function PopulateCreateTriggerSelect() {
   var selVal = selLogs[0].value;
   let selType = $$('#type-createNew');
   selType.empty();
-  var options = ['above','below','window','frame','all'];
-  for (let ix=0;ix <options.length;ix++) {
+  var options = ['above', 'below', 'window', 'frame', 'all'];
+  for (let ix = 0; ix < options.length; ix++) {
     let opt = options[ix];
     var option = document.createElement("option");
     option.value = opt;
@@ -138,13 +220,13 @@ function PopulateCreateTriggerSelect() {
       selOption = option.value;
     }
     selType[0].appendChild(option);
-  }  
+  }
   smSelct = app.smartSelect.get(selType.parent());
-  smSelct.setValue([selOption]);  
+  smSelct.setValue([selOption]);
   let selSet = $$('#set-createNew');
   selSet.empty();
-  var options = ['on','off','pause'];
-  for (let ix=0;ix <options.length;ix++) {
+  var options = ['on', 'off', 'pause'];
+  for (let ix = 0; ix < options.length; ix++) {
     let opt = options[ix];
     var option = document.createElement("option");
     option.value = opt;
@@ -154,9 +236,9 @@ function PopulateCreateTriggerSelect() {
       selOption = option.value;
     }
     selSet[0].appendChild(option);
-  }  
+  }
   smSelct = app.smartSelect.get(selSet.parent());
-  smSelct.setValue([selOption]);    
+  smSelct.setValue([selOption]);
 }
 
 /**
@@ -170,10 +252,11 @@ function OpenTriggerPopup(tName, ele) {
     el = $$(el[1]);
   el.find('.editMode').addClass('hide');
   $$(ele).prev().removeClass('hide');
+  $$(ele).prev().prev().removeClass('hide');
   var trigger;
-  for(var i=0; i<app.data.triggers.length-1; i++) {
+  for (var i = 0; i < app.data.triggers.length - 1; i++) {
     let t = app.data.triggers[i];
-    if(t.conditionname === tName){
+    if (t.conditionname === tName) {
       trigger = t;
       break;
     }
@@ -184,7 +267,7 @@ function OpenTriggerPopup(tName, ele) {
 
   var selects = el.find('.smart-select-init select');
   let smSelct = app.smartSelect.get(el.find('.smart-select-init'));
-  for(var i=0; i<selects.length; i++) {
+  for (var i = 0; i < selects.length; i++) {
     let $select = $$(selects[i]);
     let $parent = $select.parent();
     $parent.addClass('hide');
@@ -218,10 +301,11 @@ function EditTriggers(tName, ele) {
     el = $$(el[1]);
   el.find('.editMode').removeClass('hide');
   $$(ele).addClass('hide');
+  $$(ele).next().addClass('hide');
   var trigger;
-  for(var i=0; i<app.data.triggers.length-1; i++) {
+  for (var i = 0; i < app.data.triggers.length - 1; i++) {
     let t = app.data.triggers[i];
-    if(t.conditionname === tName){
+    if (t.conditionname === tName) {
       trigger = t;
       break;
     }
@@ -231,14 +315,14 @@ function EditTriggers(tName, ele) {
   el.find('.smart-select-init').removeClass('hide');
   var inputs = el.find('.item-input-wrap input');
   var selectedLog;
-  for(var i=0; i<inputs.length; i++) {
+  for (var i = 0; i < inputs.length; i++) {
     let inpText = $$(inputs[i]).parent().next().text();
     let input = $$(inputs[i]);
     input.val(inpText);
   }
   var selects = el.find('.smart-select-init select');
   let smSelct = app.smartSelect.get(el.find('.smart-select-init'));
-  for(var i=0; i<selects.length; i++) {
+  for (var i = 0; i < selects.length; i++) {
     let selText = $$(selects[i]).parent().next().find('.item-title').text();
     selText = selText.replace(/[^0-9a-z]/gi, '').toLowerCase();
     let selValue = $$(selects[i]).parent().next().text().split(':');
@@ -248,11 +332,11 @@ function EditTriggers(tName, ele) {
     let $select = $$(select);
     var sen = app.data.sensors;
     var read = app.data.readings;
-    
-    switch(selText) {
+
+    switch (selText) {
       case 'log':
         $select.empty();
-        for (let ix=0;ix <sen.length;ix++) {
+        for (let ix = 0; ix < sen.length; ix++) {
           let s = sen[ix];
           let logNameSplit = s.log.split('\\').pop().split('/').pop();
           var option = document.createElement("option");
@@ -267,20 +351,21 @@ function EditTriggers(tName, ele) {
         break;
       case 'valuelabel':
         $select.empty();
-        for (let ix=0;ix <read.length;ix++) {
+        for (let ix = 0; ix < read.length; ix++) {
           let r = read[ix];
-          
-          if (selectedLog.indexOf(r.sensortype)> -1) {
-            for(let opt in r) {
+
+          if (selectedLog.indexOf(r.sensortype) > -1) {
+            for (let opt in r) {
               var option = document.createElement("option");
               if (opt != 'sensortype' && opt != 'time') {
                 option.value = opt;
                 option.text = opt;
                 if (opt.indexOf(selValue) > -1) {
-                  option.selected = true;
+                  //option.selected = true;
+
                 }
                 select.appendChild(option);
-              } 
+              }
             }
           }
         }
@@ -288,8 +373,8 @@ function EditTriggers(tName, ele) {
       case 'type':
         var selVal = $select[0].value;
         $select.empty();
-        var options = ['above','below','window','frame','all'];
-        for (let ix=0;ix <options.length;ix++) {
+        var options = ['above', 'below', 'window', 'frame', 'all'];
+        for (let ix = 0; ix < options.length; ix++) {
           let opt = options[ix];
           var option = document.createElement("option");
           option.value = opt;
@@ -298,13 +383,13 @@ function EditTriggers(tName, ele) {
             option.selected = true;
           }
           select.appendChild(option);
-        }    
+        }
         break;
       case 'set':
         var selVal = $select[0].value;
         $select.empty();
-        var options = ['on','off','pause'];
-        for (let ix=0;ix <options.length;ix++) {
+        var options = ['on', 'off', 'pause'];
+        for (let ix = 0; ix < options.length; ix++) {
           let opt = options[ix];
           var option = document.createElement("option");
           option.value = opt;
@@ -313,14 +398,14 @@ function EditTriggers(tName, ele) {
             option.selected = true;
           }
           select.appendChild(option);
-        }    
+        }
         break;
     }
-    
+
     let $parent = $select.parent();
     $parent.removeClass('hide');
     $parent.next().addClass('hide');
-    
+
   }
 
 }
@@ -332,7 +417,14 @@ function EditTriggers(tName, ele) {
  */
 function SaveTriggers(triggerName, isNew) {
   let obj = {};
-  obj['conditionname']= $$('#condName-' + triggerName).val();
+  obj['conditionname'] = $$('#condName-' + triggerName).val();
+  if (isNew) {
+    let matchTrigger = app.data.triggers.find(x => x.conditionname == triggerName);
+    if (matchTrigger) {
+      app.dialog.alert('Trigger name must be unique');
+      return;
+    }
+  }
   obj['log'] = $$('#logs-' + triggerName).val();
   obj['valuelabel'] = $$('#valuelabel-' + triggerName).val();
   obj['type'] = $$('#type-' + triggerName).val();
@@ -346,16 +438,16 @@ function SaveTriggers(triggerName, isNew) {
     let t = triggers.find(x => x.conditionname == triggerName);
 
     const orderedT = {};
-    Object.keys(t).sort().forEach(function(key) {
+    Object.keys(t).sort().forEach(function (key) {
       orderedT[key] = t[key];
     });
 
     const orderedObj = {};
-    Object.keys(obj).sort().forEach(function(key) {
+    Object.keys(obj).sort().forEach(function (key) {
       orderedObj[key] = obj[key];
     });
 
-    
+
     if (JSON.stringify(t) === JSON.stringify(orderedObj)) {
       alert('No changes made!')
       return;
@@ -380,7 +472,7 @@ function SaveTriggers(triggerName, isNew) {
     }
 
   }
-  
+
   if (isNew == true) {
     obj['createnew'] = 'True';
   }
@@ -393,20 +485,90 @@ function SaveTriggers(triggerName, isNew) {
     'processData': false
   }
   app.preloader.show();
-  app.request.promise(params).then(function(resp) {
+  
+  app.request.promise(params).then(function (resp) {
     app.preloader.hide();
     let successful = 'Successful';
+    let icon = '<i class="fa fa-star"></i>';
     if (resp.data.toLowerCase().indexOf('false') > -1) {
       successful = 'failure';
+      icon = '<i class="fa fa-ban"></i>'
     }
+    var toastIcon = app.toast.create({
+      icon: icon,
+      text: successful,
+      position: 'center',
+      closeTimeout: 2000,
+    });
+    toastIcon.open();
+    $$('#closeTriggerPopup')[0].click();
+    app.views.main.router.navigate({ path: '/triggers/' }, {
+      ignoreCache: true,
+      reloadCurrent: true
+    })
+  }).catch(function(err) {
+    var toastIcon = app.toast.create({
+      icon: '<i class="fa fa-ban"></i>',
+      text: err,
+      position: 'center',
+      closeTimeout: 5000,
+    });
+  });
+}
+
+function DeleteTrigger(tName, $ele) {
+  var trigger;
+  app.dialog.confirm('Are you sure?, cannot be recovered!', function() {
+    for (var i = 0; i < app.data.triggers.length; i++) {
+      let t = app.data.triggers[i];
+      if (t.conditionname === tName) {
+        trigger = t;
+        break;
+      }
+    }
+    let obj = {};
+    obj['conditionname'] = trigger.conditionname;
+    let params = {
+      'url': apiUrl + '/api/v1/triggers/deletetrigger',
+      'method': 'POST',
+      'contentType': 'application/json',
+      'data': JSON.stringify(obj),
+      'processData': false
+    }
+    app.preloader.show();
+   
+    app.request.promise(params).then(function (resp) {
+      app.preloader.hide();
+      let icon = '<i class="fa fa-star"></i>';
+      let successful = 'Successful';
+      if (resp.data.toLowerCase().indexOf('false') > -1) {
+        successful = 'failure';
+        icon = '<i class="fa fa-ban"></i>'
+      }
       var toastIcon = app.toast.create({
-        icon: app.theme === 'ios' ? '<i class="f7-icons">star</i>' : '<i class="material-icons">star</i>',
+        icon: icon,
         text: successful,
         position: 'center',
         closeTimeout: 2000,
       });
       toastIcon.open();
-  });
+      $$('#closeTriggerPopup')[0].click();
+      app.views.main.router.navigate({ path: '/triggers/' }, {
+        ignoreCache: true,
+        reloadCurrent: true
+      })
+    }).catch(function(err) {
+      var toastIcon = app.toast.create({
+        icon: '<i class="fa fa-ban"></i>',
+        text: err,
+        position: 'center',
+        closeTimeout: 5000,
+      });
+    });
+
+
+
+  })
 }
 
 
@@ -415,7 +577,7 @@ function SaveTriggers(triggerName, isNew) {
  * @param {element} $ele 
  * @param {bool} fixed 
  */
-function SetValueLabelOptions($ele,fixed) {
+function SetValueLabelOptions($ele, fixed) {
   var ele = $$($ele);
   var $select;
   if (fixed == true) {
@@ -427,12 +589,18 @@ function SetValueLabelOptions($ele,fixed) {
   var selValue = $select[0].value;
   var read = app.data.readings;
   $select.empty();
-  for (let ix=0;ix <read.length;ix++) {
+  for (let ix = 0; ix < read.length; ix++) {
     let r = read[ix];
-    
-    if (selectedLog.indexOf(r.sensortype)> -1) {
-      for(let opt in r) {
-        var option = document.createElement("option");
+
+    if (selectedLog.indexOf(r.sensortype) > -1) {
+      var option = document.createElement("option");
+      option.value == '';
+      option.selected = true;
+      option.disabled = true;
+      option.text = '--select--';
+      $select[0].appendChild(option);
+      for (let opt in r) {
+        option = document.createElement("option");
         if (opt != 'sensortype' && opt != 'time') {
           option.value = opt;
           option.text = opt;
@@ -441,11 +609,15 @@ function SetValueLabelOptions($ele,fixed) {
           }
           $select[0].appendChild(option);
         }
-        
-      
+
+
       }
+
     }
   }
+  
+  let smSelct = app.smartSelect.get($select.parent());
+  smSelct.unsetValue();
 }
 
 /**
@@ -462,15 +634,24 @@ function LoadReadings() {
  * Using dygraph, supports line and bar
  * is responsive and allow pinch zoom interactions
  */
-function GenerateCharts() {
-  let formData = app.form.convertToData('#chartConfig');
-  if (formData.length == 0 || formData.logs == "" || formData.columns.length  == 0) {
-    alert('Chart type, logs and columns are required fields')
-    return false;
+function GenerateCharts(chartOptions, ele) {
+  var formData;
+  if (chartOptions) {
+    chartOptions = JSON.parse(Base64.decode(chartOptions));
+    formData = chartOptions.formData;
+    if (ele)
+      ele.onload = null;
   }
-  if ((formData.dateend != '' && formData.datestart == '') || (formData.dateend == '' && formData.datestart != '')) {
-    alert('Both dates or none must be filled')
-    return false;
+  else {
+    formData = app.form.convertToData('#chartConfig');
+    if (formData.length == 0 || formData.logs == "" || formData.columns.length == 0) {
+      app.dialog.alert('Chart type, logs and columns are required fields')
+      return false;
+    }
+    if ((formData.dateend != '' && formData.datestart == '') || (formData.dateend == '' && formData.datestart != '')) {
+      app.dialig.alert('Both dates or none must be filled')
+      return false;
+    }
   }
 
   let sensors = app.data.sensors;
@@ -481,9 +662,11 @@ function GenerateCharts() {
   data['name'] = formData.logs;
   data['type'] = sen.type;
   data['col'] = formData.columns;
-  if (formData.dateend) 
+  if (formData.selector)
+    data['selector'] = formData.selector;
+  if (formData.dateend)
     data['dateend'] = new Date(formData.dateend).toUTCString();
-  if (formData.datestart) 
+  if (formData.datestart)
     data['datestart'] = new Date(formData.datestart).toUTCString();
   let params = {
     'url': apiUrl + '/api/v1/data/getcustomlog/',
@@ -493,8 +676,12 @@ function GenerateCharts() {
     'processData': false
   }
   app.preloader.show();
-  app.request.promise(params).then(function(graph) {
-    
+  app.request.promise(params).then(function (graph) {
+    var d = JSON.parse(graph.xhr.requestParameters.data)
+    var selector = 'myChart';
+    if (d.hasOwnProperty('selector'))
+      selector = d.selector;
+
     graphData = JSON.parse(graph.data);
     /// chartjs attempt
     // let keys;
@@ -550,41 +737,52 @@ function GenerateCharts() {
     /// dygraph working, line only
     convData = [];
     let keys;
-    if (graphData.length>0) {
+    if (graphData.length > 0) {
       keys = Object.keys(graphData[0]);
     }
     var labelsValue = [];
-    for (var i=0;i<graphData.length;i++) {
-        let r = graphData[i];
-        conv = [];
-        let date;
-        let num;
-        keys.forEach(function(k) {
-          if (k == 'time') {
-            date = Date.parse(r[k]);
-            conv.push(new Date(date));
-            if (i == 0) {
-              labelsValue.push(k);
-            }
-          } 
-        });
-        keys.forEach(function(k) {
-          if (k != 'time') {
-            num = parseFloat(r[k]);
-            if (num) {
-              conv.push(num);
-            }
-            if (i == 0) {
-              labelsValue.push(k);
-            }
-          } 
-        });
-        if (conv.length > 1) {
-          convData.push(conv);
+    for (var i = 0; i < graphData.length; i++) {
+      let r = graphData[i];
+      conv = [];
+      let date;
+      let num;
+      keys.forEach(function (k) {
+        if (k == 'time') {
+          date = Date.parse(r[k]);
+          conv.push(new Date(date));
+          if (i == 0) {
+            labelsValue.push(k);
+          }
         }
+      });
+      keys.forEach(function (k) {
+        if (k != 'time') {
+          num = parseFloat(r[k]);
+          if (num) {
+            conv.push(num);
+          }
+          if (i == 0) {
+            labelsValue.push(k);
+          }
+        }
+      });
+      if (conv.length > 1) {
+        convData.push(conv);
+      }
     }
     var dygraphData = {};
     dygraphData['labels'] = labelsValue;
+    //dygraphData['drawPoints'] = true,
+    dygraphData['legend'] = 'always';
+    dygraphData['interactionModel'] = {
+      mousedown: Dygraph.defaultInteractionModel.mousedown,
+      mousemove: Dygraph.defaultInteractionModel.mousemove,
+      mouseup: Dygraph.defaultInteractionModel.mouseup,
+      touchstart: newDygraphTouchstart,
+      touchend: Dygraph.defaultInteractionModel.touchend,
+      touchmove: Dygraph.defaultInteractionModel.touchmove
+    };
+    //dygraphData['width'] = 'auto';
     dygraphData['showRoller'] = true;
     dygraphData['rollPeriod'] = 15;
     if (formData.charttype == 'bar') {
@@ -595,7 +793,9 @@ function GenerateCharts() {
         dygraphData['plotter'] = multiColumnBarPlotter;
       }
     }
-    new Dygraph(document.getElementById('myChart'),
+    ResizeGraphContainer();
+
+    new Dygraph(document.getElementById(selector),
       convData,
       dygraphData
     )
@@ -620,8 +820,94 @@ function GenerateCharts() {
 
     // new Chartist.Line('#myChart', series,axisX);
 
+  });
+  app.preloader.hide();
+}
+
+function ResizeGraphContainer() {
+  let pc = $$('.page-current');
+  let myChart = $$('#myChart');
+  let w = pc.width();
+  myChart.css('width', w - 50 + 'px');
+}
+
+/**
+ * https://www.technogumbo.com/2013/04/Dygraphs-Tablet-and-Phone-Custom-Interaction-Touch-Point-Selection/
+ * Enables touch point legend on mobile on top of hover on desktop
+ * @param {event} event 
+ * @param {dygraph object} g 
+ * @param {context} context 
+ */
+function newDygraphTouchstart(event, g, context) {
+  // This right here is what prevents IOS from doing its own zoom/touch behavior
+  // It stops the node from being selected too
+  event.preventDefault(); // touch browsers are all nice.
+
+  if (event.touches.length > 1) {
+    // If the user ever puts two fingers down, it's not a double tap.
+    context.startTimeForDoubleTapMs = null;
+  }
+
+  var touches = [];
+  for (var i = 0; i < event.touches.length; i++) {
+    var t = event.touches[i];
+    // we dispense with 'dragGetX_' because all touchBrowsers support pageX
+    touches.push({
+      pageX: t.pageX,
+      pageY: t.pageY,
+      dataX: g.toDataXCoord(t.pageX),
+      dataY: g.toDataYCoord(t.pageY)
+      // identifier: t.identifier
     });
-    app.preloader.hide();
+  }
+  context.initialTouches = touches;
+
+  if (touches.length == 1) {
+    // This is just a swipe.
+    context.initialPinchCenter = touches[0];
+    context.touchDirections = { x: true, y: true };
+
+    // ADDITION - this needs to select the points
+    var closestTouchP = g.findClosestPoint(touches[0].pageX, touches[0].pageY);
+    if (closestTouchP) {
+      var selectionChanged = g.setSelection(closestTouchP.row, closestTouchP.seriesName);
+    }
+    g.mouseMove_(event);
+
+  } else if (touches.length >= 2) {
+    // It's become a pinch!
+    // In case there are 3+ touches, we ignore all but the "first" two.
+
+    // only screen coordinates can be averaged (data coords could be log scale).
+    context.initialPinchCenter = {
+      pageX: 0.5 * (touches[0].pageX + touches[1].pageX),
+      pageY: 0.5 * (touches[0].pageY + touches[1].pageY),
+
+      // TODO(danvk): remove
+      dataX: 0.5 * (touches[0].dataX + touches[1].dataX),
+      dataY: 0.5 * (touches[0].dataY + touches[1].dataY)
+    };
+
+    // Make pinches in a 45-degree swath around either axis 1-dimensional zooms.
+    var initialAngle = 180 / Math.PI * Math.atan2(
+      context.initialPinchCenter.pageY - touches[0].pageY,
+      touches[0].pageX - context.initialPinchCenter.pageX);
+
+    // use symmetry to get it into the first quadrant.
+    initialAngle = Math.abs(initialAngle);
+    if (initialAngle > 90) initialAngle = 90 - initialAngle;
+
+    context.touchDirections = {
+      x: (initialAngle < (90 - 45 / 2)),
+      y: (initialAngle > 45 / 2)
+    };
+  }
+
+  // save the full x & y ranges.
+  context.initialRange = {
+    x: g.xAxisRange(),
+    y: g.yAxisRange()
+  };
 }
 
 
@@ -664,13 +950,13 @@ function multiColumnBarPlotter(e) {
     for (var i = 0; i < sets[j].length; i++) {
       var p = sets[j][i];
       var center_x = p.canvasx;
-      var x_left = center_x - (bar_width / 2) * (1 - j/(sets.length-1));
+      var x_left = center_x - (bar_width / 2) * (1 - j / (sets.length - 1));
 
       ctx.fillRect(x_left, p.canvasy,
-          bar_width/sets.length, y_bottom - p.canvasy);
+        bar_width / sets.length, y_bottom - p.canvasy);
 
       ctx.strokeRect(x_left, p.canvasy,
-          bar_width/sets.length, y_bottom - p.canvasy);
+        bar_width / sets.length, y_bottom - p.canvasy);
     }
   }
 }
@@ -704,10 +990,10 @@ function barChartPlotter(e) {
     var center_x = p.canvasx;
 
     ctx.fillRect(center_x - bar_width / 2, p.canvasy,
-        bar_width, y_bottom - p.canvasy);
+      bar_width, y_bottom - p.canvasy);
 
     ctx.strokeRect(center_x - bar_width / 2, p.canvasy,
-        bar_width, y_bottom - p.canvasy);
+      bar_width, y_bottom - p.canvasy);
   }
 }
 
@@ -716,44 +1002,44 @@ function barChartPlotter(e) {
  * https://varolokan.wordpress.com/2017/04/24/dygraphs-pie-chart-plotter/
  * @param {object} e 
  */
-function pieChartPlotter ( e ) {
-  var ctx  = e.drawingContext;
+function pieChartPlotter(e) {
+  var ctx = e.drawingContext;
   var self = e.dygraph.user_attrs_.myCtx;
   var itm, nme, data = self._pieData;
-  if ( ! data )  {
+  if (!data) {
     var t, i, y, all, total = 0;
     data = {};
     all = e.allSeriesPoints; // array of array
-    for ( t=0; t<all.length ; t++ )  {
+    for (t = 0; t < all.length; t++) {
       y = 0;
-      itm  = all[t];
-      nme  = itm[0].name;
-      for ( i=0; i<itm.length; i++ )
+      itm = all[t];
+      nme = itm[0].name;
+      for (i = 0; i < itm.length; i++)
         y += itm[i].yval;
       total += y;
-      data[nme] = { color : null, y : y };
+      data[nme] = { color: null, y: y };
     }
     data.total = total;
     self._pieData = data;
   }
-  if ( data[e.setName] )
-       data[e.setName].color = e.color;
+  if (data[e.setName])
+    data[e.setName].color = e.color;
   var delta = ctx.canvas.width > ctx.canvas.height ? ctx.canvas.height : ctx.canvas.width;
-  var center= parseInt ( delta / 2, 10 );
+  var center = parseInt(delta / 2, 10);
   var lastend = 0;
-  ctx.clearRect ( 0, 0, ctx.canvas.width, ctx.canvas.height );
-  for ( var name in data )  {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  for (var name in data) {
     itm = data[name];
-    if ( self._highlighted === name )
+    if (self._highlighted === name)
       ctx.fillStyle = "#FF8844";
     else
       ctx.fillStyle = itm.color === null ? "#888888" : itm.color;
-    ctx.beginPath ( );
-    ctx.moveTo ( ctx.canvas.width/2, ctx.canvas.height/2 );
-    ctx.arc ( ctx.canvas.width/2, ctx.canvas.height/2, center/2, lastend, lastend + ( Math.PI * 2 * ( itm.y / data.total ) ), false );
-    ctx.lineTo ( ctx.canvas.width/2, ctx.canvas.height/2 );
-    ctx.fill ( );
-    lastend += Math.PI * 2 * ( itm.y / data.total );
+    ctx.beginPath();
+    ctx.moveTo(ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.arc(ctx.canvas.width / 2, ctx.canvas.height / 2, center / 2, lastend, lastend + (Math.PI * 2 * (itm.y / data.total)), false);
+    ctx.lineTo(ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.fill();
+    lastend += Math.PI * 2 * (itm.y / data.total);
   }
 }
 
@@ -779,29 +1065,30 @@ function EnableLongTap() {
 }
 
 /**
- * CHeck cordova ensuring connection
+ * Check cordova ensuring connection
  */
 function checkConnection() {
-  var networkState = navigator.connection.type;
+  var networkState = navigator.connection.effectiveType;
 
-  var states = {};
-  states[Connection.UNKNOWN]  = 'Unknown connection';
-  states[Connection.ETHERNET] = 'Ethernet connection';
-  states[Connection.WIFI]     = 'WiFi connection';
-  states[Connection.CELL_2G]  = 'Cell 2G connection';
-  states[Connection.CELL_3G]  = 'Cell 3G connection';
-  states[Connection.CELL_4G]  = 'Cell 4G connection';
-  states[Connection.CELL]     = 'Cell generic connection';
-  states[Connection.NONE]     = 'No network connection';
+  // var states = {};
+  // states[Connection.UNKNOWN]  = 'Unknown connection';
+  // states[Connection.ETHERNET] = 'Ethernet connection';
+  // states[Connection.WIFI]     = 'WiFi connection';
+  // states[Connection.CELL_2G]  = 'Cell 2G connection';
+  // states[Connection.CELL_3G]  = 'Cell 3G connection';
+  // states[Connection.CELL_4G]  = 'Cell 4G connection';
+  // states[Connection.CELL]     = 'Cell generic connection';
+  // states[Connection.NONE]     = 'No network connection';
 
-  var isConnected = true;
+  var isConnected = navigator.onLine;
 
   //alert('Connection type: ' + states[networkState]);
-  if (states[networkState] == 'No network connection')
-  {
-    app.dialog.alert("No Internet");
-    isConnected = false;
+  //if (states[networkState] == 'No network connection')
+  if (!isConnected) {
+    app.dialog.alert("No Network");
   }
+
+
 
   return isConnected;
 }
@@ -819,31 +1106,355 @@ function getRandomColor() {
 }
 
 function SaveConfig() {
-  let formData = app.form.convertToData('#appConfig');
-  localStorage.setItem('pigrow-ip', formData.ip);
+  let formData = app.form.convertToData('#frmAppConfig');
   if (formData.port == '')
-    formData.port = '5000';
-  localStorage.setItem('pigrow-port', formData.port);
-  mainView.router.refreshPage();
+    formData.port = 5000;
+  apiUrl = 'http://' + formData.ip + ':' + formData.port;
+  let params = {
+    'url': apiUrl + '/api/v1/config/getpigrowname',
+    'method': 'GET',
+    'timeout': 3000,
+    'contentType': 'application/json',
+    'processData': false
+  }
+  app.request.promise(params).then(function (piname) {
+    app.preloader.hide();
+    let formData = app.form.convertToData('#frmAppConfig');
+    if (formData.port == '')
+      formData.port = 5000;
+    piName = JSON.parse(piname.data);
+    let pigrowNewConfig = {}
+    let pigrowConfig;
+    pigrowNewConfig['piname'] = piName.pigrowname;
+    pigrowNewConfig['ip'] = formData.ip;
+    pigrowNewConfig['port'] = formData.port;
+    pigrowNewConfig['default'] = formData.default[0] == 'on' || formData.default[0] == '' ? 'on' : 'off';
+    let pigrowConfigString = localStorage.getItem('pigrow-config');
+    if (pigrowConfigString) {
+      pigrowConfig = JSON.parse(pigrowConfigString);
+      if (pigrowConfig.length > 0) {
+        if (Object.keys(pigrowConfig[0].pigrowConfig).length == 0)
+          pigrowNewConfig['default'] = 'on';
+      }
+      let pc = pigrowConfig.find(x => x.pigrowConfig.piname == piName.pigrowname);
+
+      if (pc) {
+        pc.pigrowConfig = pigrowNewConfig;
+
+      }
+      else {
+        if (pigrowConfig.length == 1) {
+          if (Object.keys(pigrowConfig[0].pigrowConfig).length == 0) {
+            pigrowConfig[0].pigrowConfig = pigrowNewConfig;
+            apiPiName = piName.pigrowname;
+          } else {
+            let newObj = {};
+            newObj['pigrowConfig'] = pigrowNewConfig;
+            pigrowConfig.push(newObj);
+          }
+        } else {
+          let newObj = {};
+          newObj['pigrowConfig'] = pigrowNewConfig;
+          pigrowConfig.push(newObj);
+        }
+
+        //localStorage.setItem('pigrow-config', JSON.stringify(pigrowConfig));
+      }
+
+      if (pigrowNewConfig['default'] == 'on') {
+        let curDefaultArr = pigrowConfig.filter(x => x.pigrowConfig.default == 'on');
+        if (curDefaultArr) {
+          for (let i = 0; i < curDefaultArr.length; i++) {
+            let curDefault = curDefaultArr[i];
+            if (curDefault.pigrowConfig.piname != pigrowNewConfig.piname) {
+              let cd = pigrowConfig.find(x => x.pigrowConfig.piname == curDefault.pigrowConfig.piname)
+              if (cd)
+                cd.pigrowConfig.default = 'off';
+            }
+          }
+        }
+      }
+      localStorage.setItem('pigrow-config', JSON.stringify(pigrowConfig));
+
+    }
+
+    if (pigrowConfig.length == 1)
+      mainView.router.refreshPage();
+    else if (pigrowConfig.length > 1) {
+      app.views.main.router.navigate({ path: '/appconfig/' }, {
+        ignoreCache: true,
+        reloadCurrent: true
+      })
+    }
+  }).catch(function (err) {
+    app.preloader.hide();
+    alert('Server: ' + apiUrl + ' not contactable');
+  })
 }
+
 
 
 
 function GetConfig(fillInputs) {
-  var _apiIP = localStorage.getItem('pigrow-ip');
-  var _apiPort = localStorage.getItem('pigrow-port');
-  if (_apiIP == null || _apiPort == null) {
-    return false;
+  let pigrowConfig;
+  let pigrowConfigString = localStorage.getItem('pigrow-config');
+  if (pigrowConfigString) {
+    pigrowConfig = JSON.parse(pigrowConfigString);
+    var pc;
+    for (let i = 0; i < pigrowConfig.length; i++) {
+      let pigC = pigrowConfig[i].pigrowConfig;
+      let isPc = pigC.default == 'on';
+      if (!isPc && pigrowConfig.length == 1) {
+        pc = pigC;
+        break;
+      }
+      else if (isPc) {
+        pc = pigC;
+        break;
+      }
+    }
+
+    // else {
+    //   return false;
+    // }
+    var _apiIP = pc.ip;
+    var _apiPort = pc.port;
+
+    if (_apiIP == null || _apiPort == null) {
+      return false;
+    }
+    else {
+      if (fillInputs === true) {
+        $$('input[name="ip"]').val(_apiIP);
+        $$('input[name="port"]').val(_apiPort);
+      }
+      apiIP = _apiIP;
+      apiPort = _apiPort;
+      apiUrl = 'http://' + apiIP + ':' + apiPort;
+      apiPiName = pc.piname;
+      return true;
+    }
   }
   else {
-    if (fillInputs === true) {
-      $$('input[name="ip"]').val(_apiIP);
-      $$('input[name="port"]').val(_apiPort);
+    return false;
+  }
+}
+
+function GetInfo($ele) {
+  let infoModules = app.data.infoModules;
+  let val = $ele.value;
+  var im = infoModules.find(x => x.id == val);
+  let ele = $$('.infoModulePlaceholder');
+  app.preloader.show();
+  if (val == '-1') {
+    app.preloader.hide();
+    ele.empty();
+  }
+  else {
+    app.request.promise.get(apiUrl + '/api/v1/config/getinfo/' + im.relPath).then(function (res) {
+      app.preloader.hide();
+      let html = res.data.replace('\n', '</br>')
+      let ele = $$('.infoModulePlaceholder');
+      ele.empty();
+      ele.html('<p class="item-content">' + html + '</p>');
+    })
+  }
+}
+
+function LoadSettingsForm(piName) {
+  let pigrowConfig = app.data.pigrowConfig;
+  if (pigrowConfig.length > 0) {
+    let curConfig = pigrowConfig.find(x => x.pigrowConfig.piname == piName);
+    app.form.fillFromData('#frmAppConfig', curConfig.pigrowConfig);
+    $$('.ipForm').removeClass('hide');
+
+    let curHome = curConfig.homePageConfig;
+    var html = '<div class="block-title">Home page configuration</div>';
+    var title = '';
+
+    var containerHtmlEnd = '</div></div>';
+
+    for (var i = 0; i < curHome.sensors.length; i++) {
+      let ht = '';
+      let sen = curHome.sensors[i];
+      title = sen.sensorname;
+      let options = curHome.sensorOptions[sen.sensorname];
+      let showSensor = sen.checked ? 'checked' : '';
+      let showChart = sen.chart ? 'checked' : '';
+      var containerHtmlStart =
+        '<div class="card card-outline">' +
+        '<div class="card-header">' + title +
+        '<p>' + '<label class="checkbox"><input onchange="DisableRest(this)" name="s..' + sen.sensorname + '_checked' + '" type="checkbox" ' + showSensor + '><i class="icon-checkbox"></i></label>' + ' Show sensor' + '</p>';
+        let middle = '<p>' + '  <label class="checkbox"><input name="s..' + sen.sensorname + '_chart' + '" type="checkbox" ' + showChart + '><i class="icon-checkbox"></i></label>' + ' Show chart' + '</p>';
+        if (!showSensor)
+          middle = '<p>' + '  <label class="checkbox opacity-05"><input disabled name="s..' + sen.sensorname + '_chart' + '" type="checkbox" ' + showChart + '><i class="icon-checkbox"></i></label>' + ' Show chart' + '</p>';
+        containerHtmlStart += middle;
+        containerHtmlStart += '</div>' +
+        '<div class="card-content card-content-padding">';
+      ht += containerHtmlStart;
+      options.forEach(function (opt) {
+        let checked = opt.checked ? 'checked' : '';
+        let cb = '<div>' + '<label class="checkbox"><input name="so..' + sen.sensorname + '_' + opt.measurement + '" type="checkbox" ' + checked + '><i class="icon-checkbox"></i></label> ' + opt.measurement + '</div>';
+        if (!showSensor)
+          cb = '<div>' + '<label class="checkbox opacity-05"><input disabled name="so..' + sen.sensorname + '_' + opt.measurement + '" type="checkbox" ' + checked + '><i class="icon-checkbox"></i></label> ' + opt.measurement + '</div>';
+        ht += cb;
+      })
+      ht += containerHtmlEnd;
+      html += ht;
     }
-    apiIP = _apiIP;
-    apiPort = _apiPort;
-    apiUrl = 'http://' + apiIP + ':' + apiPort;
-    return true;
+    let homeConfigFrm = $$('.homeConfigFrm');
+    homeConfigFrm.empty();
+    homeConfigFrm.html(html);
+    $$('.homeConfigFrm-btns').removeClass('hide');
+  }
+}
+
+function MakeCurrent(piName) {
+  let selConfig = app.data.pigrowConfig.find(x => x.pigrowConfig.piname == piName);
+  if (selConfig) {
+    let pc = selConfig.pigrowConfig;
+    apiUrl = 'http://' + pc.ip + ':' + pc.port;
+    apiPiName = piName;
+    app.views.main.router.navigate({ path: '/' });
+  }
+  else {
+    app.dialog.alert('Route not found!');
   }
 
 }
+
+
+
+function AreYouSure($ele) {
+
+}
+
+function AddNewPigrow() {
+  CancelConfig();
+  $$('.ipForm').removeClass('hide');
+}
+
+function CancelConfig(eleName) {
+  if (eleName == 'connection') {
+    $$('input[name="ip').val('');
+    $$('input[name="port').val('');
+    $$('input[name="default').val('');
+    $$('.ipForm').addClass('hide')
+  }
+  else if (eleName == 'homepage') {
+    $$('.homeConfigFrm').html('');
+    $$('.homeConfigFrm-btns').addClass('hide');
+  }
+}
+
+function DeletePigrow(piName) {
+  app.dialog.confirm('Are you sure? data cannot be recovered!', function () {
+    let itemToRemoveIndex = app.data.pigrowConfig.findIndex(function (item) {
+      return item.pigrowConfig.piname == piName;
+    });
+
+    // proceed to remove an item only if it exists.
+    if (itemToRemoveIndex !== -1) {
+      app.data.pigrowConfig.splice(itemToRemoveIndex, 1);
+      if (app.data.pigrowConfig.length > 0) {
+        localStorage.setItem('pigrow-config', JSON.stringify(app.data.pigrowConfig));
+        app.views.main.router.navigate(app.view.main.router.currentRoute.url, {
+          ignoreCache: true,
+          reloadCurrent: true
+        })
+      }
+      else {
+        localStorage.removeItem('pigrow-config');
+        apiIP = '';
+        app.views.main.router.navigate({ path: '/' }, {
+          ignoreCache: true,
+          reloadCurrent: true
+        })
+      }
+    }
+
+  });
+}
+
+function SaveHomePageConfig() {
+  let inputs = $$('.homeConfigFrm').find('input');
+  let pConfig = app.data.pigrowConfig;
+  for (let i = 0; i < inputs.length; i++) {
+    let input = $$(inputs[i]);
+    let id = input[0].name;
+    let firstSplit = id.split('..');
+    let inpType = firstSplit[0];
+    let details = firstSplit[1].split('_');
+    let sensorname = details[0];
+    var inp;
+    if (inpType == 's') {
+      inp = pConfig.find(x => x.homePageConfig.sensors.sensorname = details[0]);
+      let sen = inp.homePageConfig.sensors.find(x => x.sensorname == details[0]);
+      sen[details[1]] = input[0].checked;
+    }
+    else if (inpType == 'so') {
+      inp = pConfig.find(x => x.homePageConfig.sensors.sensorname = details[0]);
+      let seno = inp.homePageConfig.sensorOptions[details[0]];
+      let o = seno.find(x => x.measurement == details[1]);
+      o.checked = input[0].checked;
+    }
+
+  }
+  localStorage.setItem('pigrow-config', JSON.stringify(pConfig));
+  var toastIcon = app.toast.create({
+    icon: '<i class="fa fa-star"></i>',
+    text: 'Successful',
+    position: 'center',
+    closeTimeout: 2000,
+  });
+  toastIcon.open();
+  app.views.main.router.navigate(app.view.main.router.currentRoute.url, {
+    ignoreCache: true,
+    reloadCurrent: true
+  })
+
+}
+
+function DisableRest($ele) {
+  let ele = $$($ele);
+  let container = ele.parent().parent().parent().next();
+  let inputs = container.find('input');
+  let checked = $ele.checked;
+  let el = ele.parent().parent().parent().find('p input');
+  var chartEl;
+  el.forEach(function (e) {
+    $e = $$(e);
+    if (e != $ele) {
+      chartEl = e;
+      if (checked) {
+        if (chartEl != $ele) {
+          $e.removeAttr('disabled');
+          $e.parent().removeClass('opacity-05');
+        }
+
+      }
+      else {
+        if (chartEl != $ele) {
+          $e.attr('disabled', true);
+          $e.parent().addClass('opacity-05');
+        }
+      }
+    }
+  })
+
+  inputs.forEach(function (inp) {
+    let ip = $$(inp);
+    if (inp != $ele) {
+      if (checked) {
+        ip.removeAttr('disabled');
+        ip.parent().removeClass('opacity-05');
+      }
+      else {
+        ip.attr('disabled', true);
+        ip.parent().addClass('opacity-05');
+      }
+    }
+  })
+}
+
+

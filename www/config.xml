@@ -4,8 +4,9 @@
     <description>
         Pigrow mobile
     </description>
+	<icon src="img/logo.png" platform="ios" width="57" height="57" density="mdpi" />
     <author email="dev@cordova.apache.org" href="https://reddit.com/r/pigrow">
-        
+     
     </author>
     <content src="index.html" />
     <access origin="*" />

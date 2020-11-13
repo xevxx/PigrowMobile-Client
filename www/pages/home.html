@@ -8,7 +8,7 @@
             <i class="fa fa-bars"></i>
           </a>
         </div>
-        <div class="title sliding">Pigrow remote</div>
+        <div class="title sliding"><img class="headerImg" src="img/logo.png"/> Pigrow Mobile</div>
         <div class="right">
           <button class="button" onclick="LoadReadings();"><i class="arrow_2_circlepath_circle"></i>Refresh</button>
         </div>
@@ -17,14 +17,15 @@
     
     <div class="page-content">
             
-            <!-- <h3 class="block-title">Statistics</h3> -->
+            <h3 class="block-title">${apiPiName}</h3>
             <div class="block">
              
-                ${this.stats.map((stat) => `
+                ${this.stats.readings.map((stat) => `
                   <div class="card card-outline">
                 <div class="card-header">${stat.sensortype}</div>
                 <span style='display:none'>
                   ${delete stat['time']}
+                  ${delete stat['piname']}
                   ${delete stat['sensortype']}
               </span>
                 <div class="card-content card-content-padding">

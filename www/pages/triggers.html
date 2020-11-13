@@ -180,8 +180,10 @@
                             </ul>
                             <div class="block">
                                 <div class="row">
-                                    <button class="button"
+                                    <button class="button col"
                                         onclick="EditTriggers('{{this.conditionname}}',this)">Edit</button>
+                                    <button class="button col"
+                                        onclick="DeleteTrigger('{{this.conditionname}}',this)">Delete</button>
                                     <button class="button col editMode  hide" data-popup="#triggerPopup-{{this.conditionname}}"
                                         onclick="OpenTriggerPopup('{{this.conditionname}}',this)">Cancel</button>
                                         <!-- <button class="button col editMode popup-close hide" data-popup="#triggerPopup-{{this.conditionname}}"
@@ -206,7 +208,7 @@
                     <div class="row">
                         <div class="col-90"></div>
                         <div class="col-10">
-                            <a href="#" class="button popup-close "><i class="fa fa-times"></i></a>
+                            <a id="closeTriggerPopup" href="#" class="button popup-close "><i class="fa fa-times"></i></a>
                         </div>
                     </div>
                     <div class="list">

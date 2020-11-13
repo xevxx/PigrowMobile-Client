@@ -64,3 +64,37 @@ html, body{
 .item-text {
     color: #575757 !important;
 }
+
+.fullWidth {
+    width: 100% !important;
+}
+
+.width100vh {
+    width: 100vh;
+}
+
+.chartDiv {
+    /* position: relative; 
+    width: 100vw; */
+}
+
+.chartDivInside {
+    /* position: absolute;
+    left: 10px;
+    right: 10px;
+    top: 40px;
+    bottom: 10px; */
+}
+
+.headerImg {
+    height: 40px;
+    vertical-align: middle;
+}
+
+.opacity-05 {
+    opacity: 0.5;
+}
+
+.smart-select-page li.disabled{
+	display:none;
+}

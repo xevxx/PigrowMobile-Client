@@ -1,6 +1,6 @@
 <template>
-<div class="page" data-name="home">
-      
+  <div class="page" data-name="home">
+
     <div class="navbar">
       <div class="navbar-inner">
         <div class="left">
@@ -8,28 +8,53 @@
             <i class="fa fa-bars"></i>
           </a>
         </div>
-        <div class="title sliding">Pigrow remote</div>
+        <div class="title sliding"><img class="headerImg" src="img/logo.png" /> Pigrow Mobile</div>
+        <div class="right">
+          <button class="button" onclick="LoadReadings();"><i class="arrow_2_circlepath_circle"></i>Refresh</button>
+        </div>
       </div>
     </div>
-    
+
     <div class="page-content">
-       
-            <div class="block-title">Statistics</div>
-            <div class="block">
-              <div id="readings" class="list">
-                {{#each sensors}}
-                    <h3>{{sensors.sensortype}}</h3>
-                    <ul>
-                        {{#if this != 'time' && this != 'sensortype'}}
-                            <li >{{@key}} : {{this}}</li>
-                        {{/if}}
-                    </ul>
-                {{/each}}
-              </div>
-            </div>
-            <div class="block">
-                <button class="button button-big button-fill" onclick="LoadReadings();">Refresh</button>
-            </div>
+
+      <h3 class="block-title">{{stats.piname}}</h3>
+      <div class="block">
+        {{#each stats.readings}}
+        {{#js_if "this.show_Sensor == true"}}
+        <div class="card card-outline">
+          <div class="card-header">{{this.sensortype}}</div>
+
+          <div class="card-content card-content-padding">
+            <ul>
+              {{#each this}}
+              {{#js_if "@key != 'time' && @key != 'sensortype'"}}
+              {{#js_if "@key != 'show_Chart' && @key != 'show_Sensor'"}}
+
+              {{#js_if "this == true"}}
+              {{display @key}}
+
+              {{/js_if}}
+              {{/js_if}}
+              {{/js_if}}
+
+              {{/each}}
+            </ul>
           </div>
+          <div class="card-footer">
+            {{#js_if "this.show_Chart == true"}}
+
+            {{genChart this}}
+
+            {{/js_if}}
+          </div>
+        </div>
+        {{/js_if}}
+        {{/each}}
+
+
+
+
+
+      </div>
     </div>
 </template>
