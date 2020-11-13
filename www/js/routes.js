@@ -137,22 +137,69 @@ routes = [
 							if (typeof pigrowConfig == 'string') {
 								pigrowConfig = JSON.parse(pigrowConfig);
 							}
-							let pigrow = pigrowConfig.find(x => x.pigrowConfig.piname == apiPiName)
+							
+							let pigrow = pigrowConfig.find(x => x.pigrowConfig.piname == apiPiName);
+							if (pigrow.homePageConfig.sensors.length == 0) {
+								pigrow.homePageConfig.sensors = app.data.sensors;
+							}
 							let readingsClone = JSON.parse(JSON.stringify(readings));
+							let sO = [];
+							var sensorOptions = {};
+							let senOpt = JSON.parse(JSON.stringify(pigrow.homePageConfig.sensorOptions));
 							for (let i =0;i<readingsClone.length;i++) {
 								let r = readingsClone[i];
-								let sensorOptions = pigrow.homePageConfig.sensorOptions;
+								sensorOptions = pigrow.homePageConfig.sensorOptions;
 								let sensors = pigrow.homePageConfig.sensors;
 								let sen = sensors.find(x => x.sensorname == r.sensortype);
-								let opt = sensorOptions[r.sensortype];
-								r['show_Chart'] = sen.chart;
-								r['show_Sensor'] = sen.checked;
+								if (sen.chart) {
+									r['show_Chart'] = sen.chart;
+								}
+								else {
+									let sc = false;
+									if (i == 0)
+										sc = true
+									sen['chart'] = sc;
+								}
+								if (sen.checked) {
+									r['show_Sensor'] = sen.checked;
+								}
+								else {
+									sen['checked'] = true;
+								}
 								r['__log'] = sen.log
-								for (let ix=0;ix<opt.length;ix++) {
-									let o = opt[ix];
-									r['show_' + o.measurement] = o.checked;
+								if (Object.keys(senOpt).length > 0) {
+									let opt = sensorOptions[r.sensortype];
+									for (let ix=0;ix<opt.length;ix++) {
+										let o = opt[ix];
+										r['show_' + o.measurement] = o.checked;
+									}
+								}
+								else {
+									//let optHolder = [];
+									let read = readings.find(x => x.sensortype == r.sensortype);
+									var opt;
+									if (sensorOptions[r.sensortype])
+											opt = sensorOptions[r.sensortype]
+										else 
+											opt = sensorOptions[r.sensortype] = []
+									for(let o in read) {
+										let tempObj = {}
+										
+										if (o != 'sensortype' && o != 'time') {
+											r['show_' + o] = true;
+											tempObj['measurement'] = o;
+											tempObj['checked'] = true;
+											opt.push(tempObj);
+										}
+									}
+									
+									
+
 								}
 							}
+							//pigrow.homePageConfig.sensors = sensorOptions;
+							pigrow.homePageConfig.sensorOptions = sensorOptions;
+							localStorage.setItem('pigrow-config', JSON.stringify(pigrowConfig));
 							hpConfig['readings'] = readingsClone;
 							hpConfig['piname'] = apiPiName;
 							resolve(
