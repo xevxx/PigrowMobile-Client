@@ -17,12 +17,14 @@ project (hopefully will be part of Pigrow deploy)
 On init screen enter your Pi ip address and server port (defaults to
 5000 for Flask built in server.
 
-<em>Config screen</em>
+<em>Connection screen</em>
 
 <img alt="" src="/../../blob/master/ReadME/enterdetails.jpg?raw=true" width="200">
 
 This will take you to the home screen where readings will be shown from
 pre-configured sensors in Pigrow main app:
+
+Initially a chart of the last 24hrs will be configured to display for the 1st sensor. All sensor reports can be configured in the app config section - see below
 
 Refresh will update the readings and the menu button
 
@@ -34,7 +36,7 @@ Menu button opens up Nav menu:
 
 <em>Nav menu</em>
 
-<img alt="" src="/../../blob/master/ReadME/sidemenu.jpg?raw=true" width="200">
+<img alt="" src="/../../blob/master/ReadME/menu.jpg?raw=true" width="200">
 
 Charts allows you to create interactive charts with a few simple options
 (uses dygraph js library)
@@ -65,7 +67,7 @@ Data can be clicked to get a reading at that point (wip)
 
 Double tap to reset graph for full view
 
-Config shows GPIO configuration and allows toggling of relay switches
+GPIO shows GPIO configuration and allows toggling of relay switches
 
 <em>GPIO config with toggles</em>
 
@@ -93,3 +95,31 @@ Sensors information can be viewed (read only)
 
 <img alt="" src="/../../blob/master/ReadME/sensorview.jpg?raw=true" width="200">
 
+Info modules are scripts that are stored in the info modules folder in pigrow, any new scripts added to the folder will be read in info modules and the output of the query displayed in the app. This section currently supports outputs with data displayed on new lines.
+
+<em>Info modules</em>
+
+<img alt="" src="/../../blob/master/ReadME/infomodule.jpg?raw=true" width="200">
+
+App config allowa you to change the config of the application
+
+Change connection congfig
+
+If multiple pigrows are added, switch bewtween them
+
+Delete pigrow config
+
+Edit home page configuration:
+Sensor display on/ off
+Chart display on/ off
+Individual reading display on/ off
+
+Note: Connection info and homepage config have different save buttons
+
+<em>Multi pigrow choice</em>
+
+<img alt="" src="/../../blob/master/ReadME/AppconfigMultipigrow.jpg?raw=true" width="200">
+
+<em>Home page configuaration</em>
+
+<img alt="" src="/../../blob/master/ReadME/homepageconfig.jpg?raw=true" width="200">
