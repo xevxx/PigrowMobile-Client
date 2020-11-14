@@ -30,7 +30,7 @@ Refresh will update the readings and the menu button
 
 <em>Home screen</em>
 
-<img alt="" src="/../../blob/master/ReadME/homescreen.jpg?raw=true" width="200">
+<img alt="" src="/../../blob/master/ReadME/homeChart.jpg?raw=true" width="200">
 
 Menu button opens up Nav menu:
 
