@@ -40,6 +40,8 @@ function ToggleGpio($ele) {
             toastIcon.open();
 
         }
+    }).catch(function(err) {
+        app.dialog.alert(err.message);
     });
 }
 
@@ -309,7 +311,7 @@ function SaveTriggers(triggerName, isNew) {
 
 
         if (JSON.stringify(t) === JSON.stringify(orderedObj)) {
-            alert('No changes made!')
+            app.dialog.alert('No changes made!')
             return;
         }
     }
@@ -323,11 +325,11 @@ function SaveTriggers(triggerName, isNew) {
             }
         }
         if (t) {
-            alert('Condition name must be unique!')
+            app.dialog.alert('Condition name must be unique!')
             return;
         }
         if (valid == false) {
-            alert('All fields required!')
+            app.dialog.alert('All fields required!')
             return;
         }
 
@@ -690,6 +692,8 @@ function GenerateCharts(chartOptions, ele) {
 
         // new Chartist.Line('#myChart', series,axisX);
 
+    }).catch(function(err) {
+        app.dialog.alert(err.message);
     });
     app.preloader.hide();
 }
@@ -955,7 +959,7 @@ function checkConnection() {
     //alert('Connection type: ' + states[networkState]);
     //if (states[networkState] == 'No network connection')
     if (!isConnected) {
-        app.dialog.alert("No Network");
+        //app.dialog.alert("No Network");
     }
 
 
@@ -1061,7 +1065,7 @@ function SaveConfig() {
         }
     }).catch(function (err) {
         app.preloader.hide();
-        alert('Server: ' + apiUrl + ' not contactable\n' + err.message);
+        app.dialog.alert('Server: ' + apiUrl + ' not contactable\n' + err.message);
     })
 }
 

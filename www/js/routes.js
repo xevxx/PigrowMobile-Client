@@ -43,8 +43,10 @@ routes = [
 		path: '/',
 		//url: './pages/home.html',
 		async: function (routeTo, routeFrom, resolve, reject) {
-			if (!checkConnection())
-				  return;
+			if (!checkConnection()) {
+				app.dialog.alert('No network Connectivity');
+				return;
+			}
 			var router = this;
 			var readings = []
 			var app = router.app;
@@ -103,6 +105,8 @@ routes = [
 									});	
 								}).then(function(data) {
 									readings.push(data);
+								}).catch(function(err) {
+									app.dialog.alert(err.message);
 								})
 								);
 							} else {
@@ -221,7 +225,7 @@ routes = [
 				})
 				.catch(function(err) {
 					app.preloader.hide();
-					alert('Server: ' + apiUrl + ' not contactable\n' + err.message);
+					app.dialog.alert('Server: ' + apiUrl + ' not contactable\n' + err.message);
 					app.views.main.router.navigate({path:'/appconfig/'});
 				})
 		}
@@ -230,8 +234,10 @@ routes = [
 	{
 		path: '/sensors/',
 		async: function (routeTo, routeFrom, resolve, reject) {
-			//if (!checkConnection())
-			//	  return;
+			if (!checkConnection()) {
+				app.dialog.alert('No network Connectivity');
+				return;
+			}
 			var router = this;
 			var app = router.app;
 			app.preloader.show('Searching');
@@ -268,8 +274,10 @@ routes = [
 	{
 		path: '/triggers/',
 		async: function (routeTo, routeFrom, resolve, reject) {
-			//if (!checkConnection())
-			//	  return;
+			if (!checkConnection()) {
+				app.dialog.alert('No network Connectivity');
+				return;
+			}
 			var router = this;
 			var app = router.app;
 			app.preloader.show('Searching');
@@ -305,8 +313,10 @@ routes = [
 	{
 		path: '/config/',
 		async: function (routeTo, routeFrom, resolve, reject) {
-			//if (!checkConnection())
-			//	  return;
+			if (!checkConnection()) {
+				app.dialog.alert('No network Connectivity');
+				return;
+			}
 			var router = this;
 			var app = router.app;
 			app.preloader.show('Searching');
@@ -366,6 +376,8 @@ routes = [
 								}
 							}
 						);
+						}).catch(function(err) {
+							app.dialog.alert(err.message);
 						});
 
 					
@@ -563,6 +575,10 @@ routes = [
 		//url: './pages/appconfig.html',
 		async: function (routeTo, routeFrom, resolve, reject) {
 			var temp = {};
+			if (!checkConnection()) {
+				app.dialog.alert('No network Connectivity');
+				return;
+			}
 			app.preloader.show('Searching');
 			app.request.json(apiUrl + '/api/v1/config/getfolderlisting/-_scripts-_gui-_info_modules/info_/py', function (data) { 
 				app.preloader.hide()
