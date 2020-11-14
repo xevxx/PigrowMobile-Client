@@ -101,9 +101,9 @@ Info modules are scripts that are stored in the info modules folder in pigrow, a
 
 <img alt="" src="/../../blob/master/ReadME/infomodule.jpg?raw=true" width="200">
 
-App config allowa you to change the config of the application
+App config allows you to change the config of the application
 
-* Change connection congfig
+* Edit connection congfig
 
 * If multiple pigrows are added, switch bewtween them
 
