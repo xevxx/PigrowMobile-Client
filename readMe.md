@@ -120,6 +120,6 @@ Note: Connection info and homepage config have different save buttons
 
 <img alt="" src="/../../blob/master/ReadME/AppconfigMultipigrow.jpg?raw=true" width="200">
 
-<em>Home page configuaration</em>
+<em>Home page configuration</em>
 
 <img alt="" src="/../../blob/master/ReadME/homepageconfig.jpg?raw=true" width="200">
