@@ -159,12 +159,14 @@ routes = [
 									if (i == 0)
 										sc = true
 									sen['chart'] = sc;
+									r['show_Chart'] = sc;
 								}
 								if (sen.checked) {
 									r['show_Sensor'] = sen.checked;
 								}
 								else {
 									sen['checked'] = true;
+									r['show_Sensor'] = true;
 								}
 								r['__log'] = sen.log
 								if (Object.keys(senOpt).length > 0) {
@@ -480,6 +482,11 @@ routes = [
 			else {
 				for (let i=0;i<pigrowConfigArr.length;i++) {
 					let pg = pigrowConfigArr[i];
+					if (!pg.homePageConfig) {
+						pg['homePageConfig'] = {}
+						pg.homePageConfig['sensors'] = [];
+						pg.homePageConfig['sensorOptions'] = {};
+					}
 					if (pg.homePageConfig.sensors.length == 0) {
 						let sen = app.data.sensors;
 						for (let ix=0;ix <sen.length;ix++) {

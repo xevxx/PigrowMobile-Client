@@ -1061,7 +1061,7 @@ function SaveConfig() {
         }
     }).catch(function (err) {
         app.preloader.hide();
-        alert('Server: ' + apiUrl + ' not contactable');
+        alert('Server: ' + apiUrl + ' not contactable\n' + err.message);
     })
 }
 
