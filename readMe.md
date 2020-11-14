@@ -103,16 +103,16 @@ Info modules are scripts that are stored in the info modules folder in pigrow, a
 
 App config allowa you to change the config of the application
 
-*Change connection congfig
+* Change connection congfig
 
-*If multiple pigrows are added, switch bewtween them
+* If multiple pigrows are added, switch bewtween them
 
-*Delete pigrow config
+* Delete pigrow config
 
-*Edit home page configuration:
-  *Sensor display on/ off
-  *Chart display on/ off
-  *Individual reading display on/ off
+* Edit home page configuration:
+  * Sensor display on/ off
+  * Chart display on/ off
+  * Individual reading display on/ off
 
 Note: Connection info and homepage config have different save buttons
 
