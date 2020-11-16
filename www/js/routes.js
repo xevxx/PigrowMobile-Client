@@ -81,7 +81,7 @@ routes = [
 			let params = {
 				'url': apiUrl + '/api/v1/config/getallsensors',
 				'method': 'GET',
-				'timeout': 3000,
+				'timeout': 10000,
 				'contentType': 'application/json',
 				'processData': false
 			  }
