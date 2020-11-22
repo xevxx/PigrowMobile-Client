@@ -216,7 +216,7 @@ function EditTriggers(tName, ele) {
                 for (let ix = 0; ix < read.length; ix++) {
                     let r = read[ix];
 
-                    if (selectedLog.indexOf(r.sensortype) > -1) {
+                    if (selectedLog.toLowerCase().indexOf(r.sensortype.toLowerCase()) > -1) {
                         for (let opt in r) {
                             var option = document.createElement("option");
                             if (opt != 'sensortype' && opt != 'time') {
@@ -656,7 +656,9 @@ function GenerateCharts(chartOptions, ele) {
         };
         //dygraphData['width'] = 'auto';
         dygraphData['showRoller'] = true;
-        dygraphData['rollPeriod'] = 15;
+        dygraphData['rollPeriod'] = 5;
+        if (chartOptions)
+            dygraphData['rollPeriod'] = 1;
         if (formData.charttype == 'bar') {
             if (labelsValue.length == 2) {
                 dygraphData['plotter'] = barChartPlotter;
