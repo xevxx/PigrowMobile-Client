@@ -228,8 +228,18 @@ routes = [
 					app.dialog.alert('Server: ' + apiUrl + ' not contactable\n' + err.message);
 					app.views.main.router.navigate({path:'/appconfig/'});
 				})
+		},
+		on: {
+			pageAfterIn: function (event, page) {
+				var $ptrContent = $$('.ptr-content');
+				// Add 'refresh' listener on it
+				$ptrContent.on('ptr:refresh', function (e) {
+					
+					readingsRefresh();
+					app.ptr.done();
+  				});
+			}
 		}
-
 	},
 	{
 		path: '/sensors/',

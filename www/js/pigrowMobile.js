@@ -459,7 +459,7 @@ function SetValueLabelOptions($ele, fixed) {
     for (let ix = 0; ix < read.length; ix++) {
         let r = read[ix];
 
-        if (selectedLog.indexOf(r.sensortype) > -1) {
+        if (selectedLog.toLowerCase().indexOf(r.sensortype.toLowerCase()) > -1) {
             var option = document.createElement("option");
             option.value == '';
             option.selected = true;

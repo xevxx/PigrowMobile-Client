@@ -58,6 +58,7 @@ var mainView = app.views.create('.view-main', {
 
 $$(document).on('deviceready', function deviceIsReady() {
   console.log('Device is ready!');
+  
 
 });
 $$(document).on('submit', 'readingsFrm', readingsRefresh);
@@ -75,4 +76,6 @@ window.addEventListener("orientationchange", function () {
 window.addEventListener("resize", function () {
   ResizeGraphContainer();
 });
+
+
 
